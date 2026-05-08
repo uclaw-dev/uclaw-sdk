@@ -1,5 +1,11 @@
 # @uclaw/cli
 
+## 0.0.4
+
+### Patch Changes
+
+- 67ba838: fix workspace dependency
+
 ## 0.0.3
 
 ### Patch Changes
