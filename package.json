@@ -6,7 +6,8 @@
   ],
   "scripts": {
     "tc": "bun run --filter @uclaw/* tc",
-    "build": "tsdown -W"
+    "build": "tsdown -W",
+    "ci:version": "changeset version && bun install"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
