@@ -1,5 +1,11 @@
 # @uclaw/cli
 
+## 0.0.5
+
+### Patch Changes
+
+- 5f82c6b: fix publishing
+
 ## 0.0.4
 
 ### Patch Changes
