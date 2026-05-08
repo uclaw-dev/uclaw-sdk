@@ -11,6 +11,6 @@
     "dist/"
   ],
   "bin": {
-    "uclaw": "dist/index.mjs"
+    "uclaw": "./dist/index.mjs"
   }
 }
