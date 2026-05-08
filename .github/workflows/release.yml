@@ -33,9 +33,12 @@ jobs:
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
+      
+      - name: Setup npm
+        run: npm login
 
       - name: Install Dependencies
-        run: bun install
+        run: bun install --frozen-lockfile
 
       - name: Build Packages
         run: bun run build
