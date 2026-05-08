@@ -2,7 +2,7 @@
   "name": "@uclaw/cli",
   "version": "0.0.4",
   "repository": {
-    "url": "https://github.com/usteps/uclaw-sdk"
+    "url": "git+https://github.com/usteps/uclaw-sdk.git"
   },
   "type": "module",
   "scripts": {},
@@ -14,7 +14,7 @@
     "dist/"
   ],
   "bin": {
-    "uclaw": "./dist/index.mjs"
+    "uclaw": "dist/index.mjs"
   },
   "dependencies": {
     "@uclaw/sdk": "workspace:*"

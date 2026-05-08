@@ -2,7 +2,7 @@
   "name": "@uclaw/sdk",
   "version": "0.0.2",
   "repository": {
-    "url": "https://github.com/usteps/uclaw-sdk"
+    "url": "git+https://github.com/usteps/uclaw-sdk.git"
   },
   "type": "module",
   "types": "src/index.ts",
