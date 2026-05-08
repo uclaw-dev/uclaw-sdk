@@ -33,6 +33,8 @@ async function main() {
         }
 
         agent.close();
+
+        await app.deleteAgent(agent.id)
         app.close();
     } else {
         console.error("Unknown command. Usage: uclaw run <prompt>");
