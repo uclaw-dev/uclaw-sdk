@@ -1,6 +1,9 @@
 {
   "name": "@uclaw/cli",
   "version": "0.0.3",
+  "repository": {
+    "url": "https://github.com/usteps/uclaw-sdk"
+  },
   "type": "module",
   "scripts": {},
   "exports": {
