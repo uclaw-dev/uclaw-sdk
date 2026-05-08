@@ -1,5 +1,13 @@
 # @uclaw/cli
 
+## 0.0.6
+
+### Patch Changes
+
+- add9f0f: bump versions correctly
+- Updated dependencies [add9f0f]
+  - @uclaw/sdk@0.0.3
+
 ## 0.0.5
 
 ### Patch Changes
