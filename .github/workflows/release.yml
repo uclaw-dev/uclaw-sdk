@@ -33,9 +33,6 @@ jobs:
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
-      
-      - name: Setup npmrc
-        run: echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
 
       - name: Install Dependencies
         run: bun install --frozen-lockfile
