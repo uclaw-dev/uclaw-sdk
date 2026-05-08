@@ -12,9 +12,9 @@
     },
     "packages/cli": {
       "name": "@uclaw/cli",
-      "version": "0.0.2",
+      "version": "0.0.5",
       "bin": {
-        "uclaw": "./dist/index.mjs",
+        "uclaw": "dist/index.mjs",
       },
       "dependencies": {
         "@uclaw/sdk": "workspace:*",
@@ -22,7 +22,7 @@
     },
     "packages/sdk": {
       "name": "@uclaw/sdk",
-      "version": "0.0.1",
+      "version": "0.0.2",
       "dependencies": {
         "@cloudflare/ai-chat": "*",
         "agents": "*",

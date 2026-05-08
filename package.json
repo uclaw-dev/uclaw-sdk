@@ -7,7 +7,7 @@
   "scripts": {
     "tc": "bun run --filter @uclaw/* tc",
     "build": "tsdown -W",
-    "ci:version": "changeset version && bun install",
+    "ci:version": "changeset version && bun update",
     "ci:publish": "for dir in packages/*; do (cd \"$dir\" && bun pm pack && npm publish *.tgz || true); done && changeset tag"
   },
   "devDependencies": {
