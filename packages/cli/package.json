@@ -1,0 +1,16 @@
+{
+  "name": "@uclaw/cli",
+  "version": "0.0.2",
+  "type": "module",
+  "scripts": {},
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/"
+  ],
+  "bin": {
+    "uclaw": "dist/index.mjs"
+  }
+}

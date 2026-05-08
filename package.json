@@ -1,0 +1,15 @@
+{
+  "name": "uclaw-sdk",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "tc": "bun run --filter @uclaw/* tc",
+    "build": "tsdown -W"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.31.0",
+    "tsdown": "^0.22.0"
+  }
+}

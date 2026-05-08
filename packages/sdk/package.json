@@ -1,0 +1,29 @@
+{
+  "name": "@uclaw/sdk",
+  "version": "0.0.1",
+  "type": "module",
+  "types": "src/index.ts",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./react": "./dist/react.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist/"
+  ],
+  "scripts": {
+    "tc": "tsc --noEmit"
+  },
+  "dependencies": {
+    "agents": "*",
+    "@cloudflare/ai-chat": "*"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "typescript": "^6.0.3",
+    "react": "^19.2.5"
+  }
+}
