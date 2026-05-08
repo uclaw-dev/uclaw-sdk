@@ -45,7 +45,7 @@ jobs:
         uses: changesets/action@v1
         with:
           version: bun run ci:version
-          publish: bun x changeset publish
+          publish: bun run ci:publish
           commit: "chore: update versions"
           title: "chore: release new versions"
         env:

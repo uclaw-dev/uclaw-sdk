@@ -7,7 +7,8 @@
   "scripts": {
     "tc": "bun run --filter @uclaw/* tc",
     "build": "tsdown -W",
-    "ci:version": "changeset version && bun install"
+    "ci:version": "changeset version && bun install",
+    "ci:publish": "for dir in packages/*; do (cd \"$dir\" && bun publish || true); done && changeset tag"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
