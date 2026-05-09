@@ -1,5 +1,14 @@
 # @uclaw/cli
 
+## 0.0.7
+
+### Patch Changes
+
+- 086eddc: rename durable objects
+- 1c84b93: remove agent after run
+- Updated dependencies [086eddc]
+  - @uclaw/sdk@0.0.4
+
 ## 0.0.6
 
 ### Patch Changes
