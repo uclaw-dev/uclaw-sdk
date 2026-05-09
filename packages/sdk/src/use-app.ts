@@ -3,7 +3,7 @@ import { useAgent } from "agents/react";
 import type { AgentSummary, AppState } from "./types";
 
 const DEFAULT_URL = "https://agents.uclaw.dev";
-const DIRECTORY_AGENT = "AssistantDirectory";
+const DIRECTORY_AGENT = "UClawApp";
 
 export interface UseAppOptions {
   /** Runtime API URL. Defaults to "https://agents.uclaw.dev". */

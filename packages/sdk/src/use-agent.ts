@@ -4,8 +4,8 @@ import { useAgentChat } from "@cloudflare/ai-chat/react";
 import type { OnToolCallCallback } from "@cloudflare/ai-chat/react";
 
 const DEFAULT_URL = "https://agents.uclaw.dev";
-const DIRECTORY_AGENT = "AssistantDirectory";
-const CHAT_AGENT = "MyAssistant";
+const APP_CLASS = "UClawApp";
+const AGENT_CLASS = "UClawAgent";
 
 export interface UseAgentOptions {
   /** Runtime API URL. Defaults to "https://agents.uclaw.dev". */
@@ -33,11 +33,11 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
   >("connecting");
 
   // ── Active chat connection ────────────────────────────────────────
-  const chatSub = useMemo(() => [{ agent: CHAT_AGENT, name: chatId }], [chatId]);
+  const chatSub = useMemo(() => [{ agent: AGENT_CLASS, name: chatId }], [chatId]);
 
   const chatAgent = useRuntimeAgent({
     host: url,
-    agent: DIRECTORY_AGENT,
+    agent: APP_CLASS,
     sub: chatSub,
     onOpen: useCallback(() => setAgentStatus("connected"), []),
     onClose: useCallback(() => setAgentStatus("disconnected"), []),

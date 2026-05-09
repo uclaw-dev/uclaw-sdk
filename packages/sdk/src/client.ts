@@ -70,7 +70,7 @@ export class AgentInstance {
   constructor(url: string, public id: string) {
     const host = url.replace(/^https?:\/\//, "");
     this.client = new AgentClient({
-      agent: "MyAssistant",
+      agent: "UClawAgent",
       name: id,
       host: host,
     });
@@ -94,7 +94,7 @@ export class AppClient {
     const host = this.url.replace(/^https?:\/\//, "");
 
     this.directory = new AgentClient({
-      agent: "AssistantDirectory",
+      agent: "UClawApp",
       host: host,
     });
   }
