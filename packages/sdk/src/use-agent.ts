@@ -8,6 +8,7 @@ const APP_CLASS = "UClawApp";
 const AGENT_CLASS = "UClawAgent";
 
 export interface UseAgentOptions {
+  appName: string;
   /** Runtime API URL. Defaults to "https://agents.uclaw.dev". */
   url?: string;
   /** Active chat id. */
@@ -26,7 +27,7 @@ export interface UseAgentReturn {
 }
 
 export function useAgent(options: UseAgentOptions): UseAgentReturn {
-  const { url = DEFAULT_URL, chatId, onToolCall } = options;
+  const { appName, url = DEFAULT_URL, chatId, onToolCall } = options;
 
   const [agentStatus, setAgentStatus] = useState<
     "connecting" | "connected" | "disconnected"
@@ -38,6 +39,7 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
   const chatAgent = useRuntimeAgent({
     host: url,
     agent: APP_CLASS,
+    name: appName,
     sub: chatSub,
     onOpen: useCallback(() => setAgentStatus("connected"), []),
     onClose: useCallback(() => setAgentStatus("disconnected"), []),

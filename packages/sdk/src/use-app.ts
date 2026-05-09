@@ -3,9 +3,10 @@ import { useAgent } from "agents/react";
 import type { AgentSummary, AppState } from "./types";
 
 const DEFAULT_URL = "https://agents.uclaw.dev";
-const DIRECTORY_AGENT = "UClawApp";
+const APP_CLASS = "UClawApp";
 
 export interface UseAppOptions {
+  appName: string;
   /** Runtime API URL. Defaults to "https://agents.uclaw.dev". */
   url?: string;
 }
@@ -26,8 +27,8 @@ export interface UseAppReturn {
   appStatus: "connecting" | "connected" | "disconnected";
 }
 
-export function useApp(options: UseAppOptions = {}): UseAppReturn {
-  const { url = DEFAULT_URL } = options;
+export function useApp(options: UseAppOptions): UseAppReturn {
+  const { appName, url = DEFAULT_URL } = options;
 
   const [appStatus, setAppStatus] = useState<
     "connecting" | "connected" | "disconnected"
@@ -35,7 +36,8 @@ export function useApp(options: UseAppOptions = {}): UseAppReturn {
 
   const directory = useAgent<AppState>({
     host: url,
-    agent: DIRECTORY_AGENT,
+    agent: APP_CLASS,
+    name: appName,
     onOpen: useCallback(() => setAppStatus("connected"), []),
     onClose: useCallback(() => setAppStatus("disconnected"), []),
   });
