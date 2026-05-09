@@ -1,5 +1,11 @@
 # @uclaw/sdk
 
+## 0.0.5
+
+### Patch Changes
+
+- 801f9e9: specify agent name
+
 ## 0.0.4
 
 ### Patch Changes
