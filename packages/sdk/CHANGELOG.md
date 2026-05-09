@@ -1,5 +1,11 @@
 # @uclaw/sdk
 
+## 0.0.4
+
+### Patch Changes
+
+- 086eddc: rename durable objects
+
 ## 0.0.3
 
 ### Patch Changes
