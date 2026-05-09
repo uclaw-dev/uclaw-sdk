@@ -24,12 +24,12 @@
       "name": "@uclaw/sdk",
       "version": "0.0.4",
       "dependencies": {
-        "@cloudflare/ai-chat": "*",
-        "agents": "*",
+        "@cloudflare/ai-chat": "^0.6.2",
+        "agents": "^0.12.3",
       },
       "devDependencies": {
         "@types/react": "^19.2.14",
-        "react": "^19.2.5",
+        "react": "^19.2.6",
         "typescript": "^6.0.3",
       },
       "peerDependencies": {
