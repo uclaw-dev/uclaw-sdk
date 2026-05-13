@@ -4,6 +4,15 @@ import type { AgentSummary } from "./types";
 export interface AppClientOptions {
   /** Runtime API URL. Defaults to "https://agents.uclaw.dev". */
   url?: string;
+  /** UClaw API key generated from the developer dashboard. */
+  apiKey?: string;
+}
+
+export interface AgentSpec {
+  name?: string;
+  systemPrompt?: string;
+  model?: string;
+  tools?: string[];
 }
 
 export class Run {
@@ -67,17 +76,22 @@ export class Run {
 export class AgentInstance {
   private client: AgentClient;
 
-  constructor(url: string, public id: string) {
+  constructor(url: string, apiKey: string | undefined, public id: string) {
     const host = url.replace(/^https?:\/\//, "");
     this.client = new AgentClient({
-      agent: "UClawAgent",
-      name: id,
+      agent: "ignored",
+      basePath: `/aaas/sub/u-claw-agent/${id}`,
       host: host,
+      query: authQuery(apiKey),
     });
   }
 
-  send(prompt: string) {
+  run(prompt: string) {
     return new Run(this.client, prompt);
+  }
+
+  send(prompt: string) {
+    return this.run(prompt);
   }
 
   close() {
@@ -87,21 +101,25 @@ export class AgentInstance {
 
 export class AppClient {
   private url: string;
+  private apiKey?: string;
   private directory: AgentClient;
 
   constructor(options: AppClientOptions = {}) {
     this.url = options.url || "https://agents.uclaw.dev";
+    this.apiKey = options.apiKey;
     const host = this.url.replace(/^https?:\/\//, "");
 
     this.directory = new AgentClient({
-      agent: "UClawApp",
+      agent: "ignored",
+      basePath: "/aaas",
       host: host,
+      query: authQuery(this.apiKey),
     });
   }
 
-  async createAgent(opts?: { title?: string }): Promise<AgentInstance> {
+  async createAgent(opts?: AgentSpec & { title?: string }): Promise<AgentInstance> {
     const summary = (await this.directory.call("createChat", opts ? [opts] : [])) as unknown as AgentSummary;
-    return new AgentInstance(this.url, summary.id);
+    return new AgentInstance(this.url, this.apiKey, summary.id);
   }
 
   async listAgents(): Promise<AgentSummary[]> {
@@ -116,4 +134,8 @@ export class AppClient {
   close() {
     this.directory.close();
   }
+}
+
+function authQuery(apiKey: string | undefined) {
+  return apiKey ? { apiKey } : undefined;
 }
