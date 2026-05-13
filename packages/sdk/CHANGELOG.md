@@ -1,5 +1,11 @@
 # @uclaw/sdk
 
+## 0.0.6
+
+### Patch Changes
+
+- 196598a: Add API key support.
+
 ## 0.0.5
 
 ### Patch Changes
