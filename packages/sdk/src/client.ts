@@ -1,4 +1,5 @@
 import { AgentClient } from "agents/client";
+
 import type { AgentSummary } from "./types";
 
 export interface AppClientOptions {
@@ -16,44 +17,49 @@ export interface AgentSpec {
 }
 
 export class Run {
-  constructor(private client: AgentClient, private prompt: string) { }
+  constructor(
+    private client: AgentClient,
+    private prompt: string,
+  ) {}
 
   async *stream() {
     let resolveChunk: (() => void) | null = null;
     let error: Error | null = null;
     const queue: any[] = [];
 
-    this.client.call("send", [this.prompt], {
-      stream: {
-        onChunk: (chunk: any) => {
-          queue.push(chunk);
-          if (resolveChunk) {
-            resolveChunk();
-            resolveChunk = null;
-          }
+    this.client
+      .call("send", [this.prompt], {
+        stream: {
+          onChunk: (chunk: any) => {
+            queue.push(chunk);
+            if (resolveChunk) {
+              resolveChunk();
+              resolveChunk = null;
+            }
+          },
+          onDone: () => {
+            queue.push(null);
+            if (resolveChunk) {
+              resolveChunk();
+              resolveChunk = null;
+            }
+          },
+          onError: (err: any) => {
+            error = err;
+            if (resolveChunk) {
+              resolveChunk();
+              resolveChunk = null;
+            }
+          },
         },
-        onDone: () => {
-          queue.push(null)
-          if (resolveChunk) {
-            resolveChunk();
-            resolveChunk = null;
-          }
-        },
-        onError: (err: any) => {
-          error = err;
-          if (resolveChunk) {
-            resolveChunk();
-            resolveChunk = null;
-          }
-        },
-      }
-    }).catch((err) => {
-      error = err;
-      if (resolveChunk) {
-        resolveChunk();
-        resolveChunk = null;
-      }
-    });
+      })
+      .catch((err) => {
+        error = err;
+        if (resolveChunk) {
+          resolveChunk();
+          resolveChunk = null;
+        }
+      });
 
     while (true) {
       if (queue.length > 0) {
@@ -76,7 +82,11 @@ export class Run {
 export class AgentInstance {
   private client: AgentClient;
 
-  constructor(url: string, apiKey: string | undefined, public id: string) {
+  constructor(
+    url: string,
+    apiKey: string | undefined,
+    public id: string,
+  ) {
     const host = url.replace(/^https?:\/\//, "");
     this.client = new AgentClient({
       agent: "ignored",
@@ -118,7 +128,10 @@ export class AppClient {
   }
 
   async createAgent(opts?: AgentSpec & { title?: string }): Promise<AgentInstance> {
-    const summary = (await this.directory.call("createChat", opts ? [opts] : [])) as unknown as AgentSummary;
+    const summary = (await this.directory.call(
+      "createChat",
+      opts ? [opts] : [],
+    )) as unknown as AgentSummary;
     return new AgentInstance(this.url, this.apiKey, summary.id);
   }
 

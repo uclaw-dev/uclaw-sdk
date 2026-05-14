@@ -9,13 +9,19 @@
     "build": "tsdown -W",
     "update:all": "bun update --recursive --interactive",
     "ci:version": "changeset version && bun update",
-    "ci:publish": "for dir in packages/*; do (cd \"$dir\" && bun pm pack && npm publish *.tgz || true); done && changeset tag"
+    "ci:publish": "for dir in packages/*; do (cd \"$dir\" && bun pm pack && npm publish *.tgz || true); done && changeset tag",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@changesets/cli": "^2.31.0",
     "@types/node": "^25.7.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.0.4",
     "oxfmt": "^0.49.0",
     "oxlint": "^1.64.0",
     "tsdown": "^0.22.0"
+  },
+  "lint-staged": {
+    "*": "oxfmt --no-error-on-unmatched-pattern"
   }
 }
