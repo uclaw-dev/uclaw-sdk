@@ -1,5 +1,5 @@
 import { useAgent } from "agents/react";
-import { useCallback, useState, useRef } from "react";
+import { useCallback, useMemo, useState, useRef } from "react";
 
 import type { AgentSummary, AppState } from "./types";
 
@@ -7,9 +7,12 @@ const DEFAULT_URL = "https://agents.uclaw.dev";
 const APP_CLASS = "UClawApp";
 
 export interface UseAppOptions {
-  appName: string;
   /** Runtime API URL. Defaults to "https://agents.uclaw.dev". */
   url?: string;
+  /** Short-lived client token issued by a trusted backend. */
+  token?: string;
+  /** Fetches a short-lived client token from the host app backend. */
+  getToken?: () => Promise<string>;
 }
 
 export interface UseAppReturn {
@@ -29,10 +32,19 @@ export interface UseAppReturn {
 }
 
 export function useApp(options: UseAppOptions): UseAppReturn {
-  const { appName, url = DEFAULT_URL } = options;
+  const { getToken, token, url = DEFAULT_URL } = options;
 
   const [appStatus, setAppStatus] = useState<"connecting" | "connected" | "disconnected">(
     "connecting",
+  );
+  const query = useMemo(
+    () =>
+      getToken
+        ? async () => ({ token: await getToken() })
+        : token
+          ? { token }
+          : undefined,
+    [getToken, token],
   );
 
   const pendingCallsRef = useRef(
@@ -48,7 +60,8 @@ export function useApp(options: UseAppOptions): UseAppReturn {
   const directory = useAgent<AppState>({
     host: url,
     agent: APP_CLASS,
-    name: appName,
+    basePath: "aaas",
+    query,
     onOpen: useCallback(() => setAppStatus("connected"), []),
     onClose: useCallback(() => {
       setAppStatus("disconnected");

@@ -9,11 +9,14 @@ const APP_CLASS = "UClawApp";
 const AGENT_CLASS = "UClawAgent";
 
 export interface UseAgentOptions {
-  appName: string;
   /** Runtime API URL. Defaults to "https://agents.uclaw.dev". */
   url?: string;
   /** Active chat id. */
   chatId: string;
+  /** Short-lived client token issued by a trusted backend. */
+  token?: string;
+  /** Fetches a short-lived client token from the host app backend. */
+  getToken?: () => Promise<string>;
   /** Client-side tool handlers for the active chat. */
   onToolCall?: OnToolCallCallback;
 }
@@ -28,7 +31,7 @@ export interface UseAgentReturn {
 }
 
 export function useAgent(options: UseAgentOptions): UseAgentReturn {
-  const { appName, url = DEFAULT_URL, chatId, onToolCall } = options;
+  const { getToken, token, url = DEFAULT_URL, chatId, onToolCall } = options;
 
   const [agentStatus, setAgentStatus] = useState<"connecting" | "connected" | "disconnected">(
     "connecting",
@@ -36,11 +39,21 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
 
   // ── Active chat connection ────────────────────────────────────────
   const chatSub = useMemo(() => [{ agent: AGENT_CLASS, name: chatId }], [chatId]);
+  const query = useMemo(
+    () =>
+      getToken
+        ? async () => ({ token: await getToken() })
+        : token
+          ? { token }
+          : undefined,
+    [getToken, token],
+  );
 
   const chatAgent = useRuntimeAgent({
     host: url,
     agent: APP_CLASS,
-    name: appName,
+    basePath: "aaas",
+    query,
     sub: chatSub,
     onOpen: useCallback(() => setAgentStatus("connected"), []),
     onClose: useCallback(() => setAgentStatus("disconnected"), []),

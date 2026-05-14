@@ -3,7 +3,13 @@ import type { AgentSummary } from "./types";
 export interface AppClientOptions {
   /** Runtime API URL. Defaults to "https://agents.uclaw.dev". */
   url?: string;
-  /** UClaw API key generated from the developer dashboard. */
+  /**
+   * UClaw API key generated from the developer dashboard.
+   *
+   * Server-side only: never pass this from browser code or expose it in a
+   * public bundle. Browser apps should use @uclaw/sdk/react hooks with a
+   * short-lived client token instead.
+   */
   apiKey?: string;
 }
 
