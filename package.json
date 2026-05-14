@@ -5,6 +5,9 @@
     "packages/*"
   ],
   "scripts": {
+    "fmt": "oxfmt",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
     "tc": "bun run --filter @uclaw/* tc",
     "build": "tsdown -W",
     "update:all": "bun update --recursive --interactive",

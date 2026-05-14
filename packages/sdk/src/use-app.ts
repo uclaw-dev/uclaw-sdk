@@ -1,5 +1,5 @@
 import { useAgent } from "agents/react";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef } from "react";
 
 import type { AgentSummary, AppState } from "./types";
 
@@ -35,34 +35,87 @@ export function useApp(options: UseAppOptions): UseAppReturn {
     "connecting",
   );
 
+  const pendingCallsRef = useRef(
+    new Map<
+      string,
+      {
+        resolve: (value: any) => void;
+        reject: (error: Error) => void;
+      }
+    >(),
+  );
+
   const directory = useAgent<AppState>({
     host: url,
     agent: APP_CLASS,
     name: appName,
     onOpen: useCallback(() => setAppStatus("connected"), []),
-    onClose: useCallback(() => setAppStatus("disconnected"), []),
+    onClose: useCallback(() => {
+      setAppStatus("disconnected");
+      const error = new Error("Connection closed");
+      for (const pending of pendingCallsRef.current.values()) {
+        pending.reject(error);
+      }
+      pendingCallsRef.current.clear();
+    }, []),
+    onMessage: useCallback((event: MessageEvent) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === "rpc-response") {
+          const pending = pendingCallsRef.current.get(data.id);
+          if (pending) {
+            if (data.error) {
+              pending.reject(new Error(data.error));
+            } else {
+              pending.resolve(data.result);
+            }
+            pendingCallsRef.current.delete(data.id);
+          }
+        }
+      } catch {
+        // Ignore non-JSON messages
+      }
+    }, []),
   });
 
   const agents: AgentSummary[] = directory.state?.agents ?? [];
 
+  const rpcCall = useCallback(
+    async (method: string, args: any[] = []) => {
+      return new Promise((resolve, reject) => {
+        const id = crypto.randomUUID();
+        pendingCallsRef.current.set(id, { resolve, reject });
+        directory.send(
+          JSON.stringify({
+            type: "rpc-request",
+            id,
+            method,
+            args,
+          }),
+        );
+      });
+    },
+    [directory],
+  );
+
   const createAgent = useCallback(
     async (opts?: { title?: string }) =>
-      (await directory.call("createChat", opts ? [opts] : [])) as AgentSummary,
-    [directory],
+      (await rpcCall("createChat", opts ? [opts] : [])) as AgentSummary,
+    [rpcCall],
   );
 
   const renameAgent = useCallback(
     async (id: string, title: string) => {
-      await directory.call("renameChat", [id, title]);
+      await rpcCall("renameChat", [id, title]);
     },
-    [directory],
+    [rpcCall],
   );
 
   const deleteAgent = useCallback(
     async (id: string) => {
-      await directory.call("deleteChat", [id]);
+      await rpcCall("deleteChat", [id]);
     },
-    [directory],
+    [rpcCall],
   );
 
   return {

@@ -55,10 +55,7 @@ async function main() {
       process.exit(1);
     }
 
-    agent.close();
-
     await app.deleteAgent(agent.id);
-    app.close();
   } else {
     console.error("Unknown command. Usage: uclaw login --api-key <key> | uclaw run <prompt>");
     process.exit(1);

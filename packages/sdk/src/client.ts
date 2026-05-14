@@ -1,5 +1,3 @@
-import { AgentClient } from "agents/client";
-
 import type { AgentSummary } from "./types";
 
 export interface AppClientOptions {
@@ -18,117 +16,117 @@ export interface AgentSpec {
 
 export class Run {
   constructor(
-    private client: AgentClient,
+    private url: string,
+    private apiKey: string | undefined,
+    private id: string,
     private prompt: string,
   ) {}
 
   async *stream() {
-    let resolveChunk: (() => void) | null = null;
-    let error: Error | null = null;
-    const queue: any[] = [];
+    const url = `${this.url}/aaas/sub/UClawAgent/${this.id}/rpc/send`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(this.apiKey ? { Authorization: `Bearer ${this.apiKey}` } : {}),
+      },
+      body: JSON.stringify([this.prompt]),
+    });
 
-    this.client
-      .call("send", [this.prompt], {
-        stream: {
-          onChunk: (chunk: any) => {
-            queue.push(chunk);
-            if (resolveChunk) {
-              resolveChunk();
-              resolveChunk = null;
-            }
-          },
-          onDone: () => {
-            queue.push(null);
-            if (resolveChunk) {
-              resolveChunk();
-              resolveChunk = null;
-            }
-          },
-          onError: (err: any) => {
-            error = err;
-            if (resolveChunk) {
-              resolveChunk();
-              resolveChunk = null;
-            }
-          },
-        },
-      })
-      .catch((err) => {
-        error = err;
-        if (resolveChunk) {
-          resolveChunk();
-          resolveChunk = null;
-        }
-      });
+    if (!response.ok) {
+      throw new Error(await response.text());
+    }
 
-    while (true) {
-      if (queue.length > 0) {
-        const chunk = queue.shift();
-        if (chunk === null) {
-          return;
+    const reader = response.body?.getReader();
+    if (!reader) return;
+
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const data = line.slice(6);
+            if (data === "[DONE]") break;
+            try {
+              yield JSON.parse(data);
+            } catch (e) {
+              console.error("Error parsing SSE data:", e);
+            }
+          }
         }
-        yield chunk;
-      } else if (error) {
-        throw error;
-      } else {
-        await new Promise<void>((resolve) => {
-          resolveChunk = resolve;
-        });
       }
+    } finally {
+      reader.releaseLock();
     }
   }
 }
 
 export class AgentInstance {
-  private client: AgentClient;
-
   constructor(
-    url: string,
-    apiKey: string | undefined,
+    private url: string,
+    private apiKey: string | undefined,
     public id: string,
-  ) {
-    const host = url.replace(/^https?:\/\//, "");
-    this.client = new AgentClient({
-      agent: "ignored",
-      basePath: `/aaas/sub/u-claw-agent/${id}`,
-      host: host,
-      query: authQuery(apiKey),
+  ) {}
+
+  async rpcCall(method: string, args: any[] = []): Promise<any> {
+    const response = await fetch(`${this.url}/aaas/sub/UClawAgent/${this.id}/rpc/${method}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(this.apiKey ? { Authorization: `Bearer ${this.apiKey}` } : {}),
+      },
+      body: JSON.stringify(args),
     });
+    if (!response.ok) {
+      throw new Error(await response.text());
+    }
+    return response.json();
   }
 
   run(prompt: string) {
-    return new Run(this.client, prompt);
+    return new Run(this.url, this.apiKey, this.id, prompt);
   }
 
   send(prompt: string) {
     return this.run(prompt);
-  }
-
-  close() {
-    this.client.close();
   }
 }
 
 export class AppClient {
   private url: string;
   private apiKey?: string;
-  private directory: AgentClient;
 
   constructor(options: AppClientOptions = {}) {
     this.url = options.url || "https://agents.uclaw.dev";
     this.apiKey = options.apiKey;
-    const host = this.url.replace(/^https?:\/\//, "");
+  }
 
-    this.directory = new AgentClient({
-      agent: "ignored",
-      basePath: "/aaas",
-      host: host,
-      query: authQuery(this.apiKey),
+  async rpcCall(method: string, args: any[] = []): Promise<any> {
+    const response = await fetch(`${this.url}/aaas/rpc/${method}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(this.apiKey ? { Authorization: `Bearer ${this.apiKey}` } : {}),
+      },
+      body: JSON.stringify(args),
     });
+    if (!response.ok) {
+      throw new Error(await response.text());
+    }
+    return response.json();
   }
 
   async createAgent(opts?: AgentSpec & { title?: string }): Promise<AgentInstance> {
-    const summary = (await this.directory.call(
+    const summary = (await this.rpcCall(
       "createChat",
       opts ? [opts] : [],
     )) as unknown as AgentSummary;
@@ -136,19 +134,11 @@ export class AppClient {
   }
 
   async listAgents(): Promise<AgentSummary[]> {
-    const summaries = (await this.directory.call("listChats")) as unknown as AgentSummary[];
+    const summaries = (await this.rpcCall("listChats")) as unknown as AgentSummary[];
     return summaries;
   }
 
   async deleteAgent(id: string): Promise<void> {
-    await this.directory.call("deleteChat", [id]);
+    await this.rpcCall("deleteChat", [id]);
   }
-
-  close() {
-    this.directory.close();
-  }
-}
-
-function authQuery(apiKey: string | undefined) {
-  return apiKey ? { apiKey } : undefined;
 }
