@@ -122,7 +122,11 @@ export class AppClient {
     if (!response.ok) {
       throw new Error(await response.text());
     }
-    return response.json();
+    try {
+      return await response.json();
+    } catch {
+      return null;
+    }
   }
 
   async createAgent(opts?: AgentSpec & { title?: string }): Promise<AgentInstance> {
