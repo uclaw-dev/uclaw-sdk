@@ -1,5 +1,6 @@
-import { useCallback, useState } from "react";
 import { useAgent } from "agents/react";
+import { useCallback, useState } from "react";
+
 import type { AgentSummary, AppState } from "./types";
 
 const DEFAULT_URL = "https://agents.uclaw.dev";
@@ -30,9 +31,9 @@ export interface UseAppReturn {
 export function useApp(options: UseAppOptions): UseAppReturn {
   const { appName, url = DEFAULT_URL } = options;
 
-  const [appStatus, setAppStatus] = useState<
-    "connecting" | "connected" | "disconnected"
-  >("connecting");
+  const [appStatus, setAppStatus] = useState<"connecting" | "connected" | "disconnected">(
+    "connecting",
+  );
 
   const directory = useAgent<AppState>({
     host: url,
@@ -47,21 +48,21 @@ export function useApp(options: UseAppOptions): UseAppReturn {
   const createAgent = useCallback(
     async (opts?: { title?: string }) =>
       (await directory.call("createChat", opts ? [opts] : [])) as AgentSummary,
-    [directory]
+    [directory],
   );
 
   const renameAgent = useCallback(
     async (id: string, title: string) => {
       await directory.call("renameChat", [id, title]);
     },
-    [directory]
+    [directory],
   );
 
   const deleteAgent = useCallback(
     async (id: string) => {
       await directory.call("deleteChat", [id]);
     },
-    [directory]
+    [directory],
   );
 
   return {

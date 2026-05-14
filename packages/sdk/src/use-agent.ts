@@ -1,7 +1,8 @@
-import { useCallback, useState, useMemo } from "react";
-import { useAgent as useRuntimeAgent } from "agents/react";
-import { useAgentChat } from "@cloudflare/ai-chat/react";
 import type { OnToolCallCallback } from "@cloudflare/ai-chat/react";
+
+import { useAgentChat } from "@cloudflare/ai-chat/react";
+import { useAgent as useRuntimeAgent } from "agents/react";
+import { useCallback, useState, useMemo } from "react";
 
 const DEFAULT_URL = "https://agents.uclaw.dev";
 const APP_CLASS = "UClawApp";
@@ -29,9 +30,9 @@ export interface UseAgentReturn {
 export function useAgent(options: UseAgentOptions): UseAgentReturn {
   const { appName, url = DEFAULT_URL, chatId, onToolCall } = options;
 
-  const [agentStatus, setAgentStatus] = useState<
-    "connecting" | "connected" | "disconnected"
-  >("connecting");
+  const [agentStatus, setAgentStatus] = useState<"connecting" | "connected" | "disconnected">(
+    "connecting",
+  );
 
   // ── Active chat connection ────────────────────────────────────────
   const chatSub = useMemo(() => [{ agent: AGENT_CLASS, name: chatId }], [chatId]);

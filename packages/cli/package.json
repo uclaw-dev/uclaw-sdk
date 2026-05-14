@@ -4,18 +4,18 @@
   "repository": {
     "url": "git+https://github.com/usteps/uclaw-sdk.git"
   },
-  "type": "module",
-  "scripts": {},
-  "exports": {
-    ".": "./dist/index.mjs",
-    "./package.json": "./package.json"
+  "bin": {
+    "uclaw": "dist/index.mjs"
   },
   "files": [
     "dist/"
   ],
-  "bin": {
-    "uclaw": "dist/index.mjs"
+  "type": "module",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
   },
+  "scripts": {},
   "dependencies": {
     "@uclaw/sdk": "workspace:*"
   }

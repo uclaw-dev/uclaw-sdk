@@ -4,6 +4,9 @@
   "repository": {
     "url": "git+https://github.com/usteps/uclaw-sdk.git"
   },
+  "files": [
+    "dist/"
+  ],
   "type": "module",
   "types": "src/index.ts",
   "exports": {
@@ -11,22 +14,19 @@
     "./react": "./dist/react.mjs",
     "./package.json": "./package.json"
   },
-  "files": [
-    "dist/"
-  ],
   "scripts": {
     "tc": "tsc --noEmit"
   },
   "dependencies": {
-    "agents": "^0.12.3",
-    "@cloudflare/ai-chat": "^0.6.2"
-  },
-  "peerDependencies": {
-    "react": "^19.0.0"
+    "@cloudflare/ai-chat": "^0.6.2",
+    "agents": "^0.12.3"
   },
   "devDependencies": {
     "@types/react": "^19.2.14",
-    "typescript": "^6.0.3",
-    "react": "^19.2.6"
+    "react": "^19.2.6",
+    "typescript": "^6.0.3"
+  },
+  "peerDependencies": {
+    "react": "^19.0.0"
   }
 }
