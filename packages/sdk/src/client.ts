@@ -22,7 +22,7 @@ export class Run {
   ) {}
 
   async *stream() {
-    const url = `${this.url}/aaas/sub/UClawAgent/${this.id}/rpc/send`;
+    const url = `${this.url}/aaas/sub/u-claw-agent/${this.id}/rpc/send`;
     const response = await fetch(url, {
       method: "POST",
       headers: {

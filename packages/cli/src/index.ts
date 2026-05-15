@@ -48,14 +48,18 @@ async function main() {
         if (event && event.type === "text-delta" && event.delta) {
           process.stdout.write(event.delta);
         }
+        if (event && event.type === "error") {
+          console.error(event.errorText);
+          process.exit(1);
+        }
       }
       console.log();
     } catch (err) {
       console.error("\nRun failed:", err);
       process.exit(1);
+    } finally {
+      await app.deleteAgent(agent.id);
     }
-
-    await app.deleteAgent(agent.id);
   } else {
     console.error("Unknown command. Usage: uclaw login --api-key <key> | uclaw run <prompt>");
     process.exit(1);
