@@ -53,7 +53,7 @@ async function main() {
           process.exit(1);
         }
       }
-      console.log();
+      console.log("\n");
     } catch (err) {
       console.error("\nRun failed:", err);
       process.exit(1);
