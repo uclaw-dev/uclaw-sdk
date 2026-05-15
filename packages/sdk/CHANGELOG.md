@@ -1,5 +1,11 @@
 # @uclaw/sdk
 
+## 0.0.8
+
+### Patch Changes
+
+- 5d879a6: Support agent config in react hooks
+
 ## 0.0.7
 
 ### Patch Changes

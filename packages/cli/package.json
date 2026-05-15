@@ -1,6 +1,6 @@
 {
   "name": "@uclaw/cli",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "repository": {
     "url": "git+https://github.com/usteps/uclaw-sdk.git"
   },
