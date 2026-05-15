@@ -1,4 +1,4 @@
-import type { AgentSummary } from "./types";
+import type { AgentSummary, AgentSpec } from "./types";
 
 export interface AppClientOptions {
   /** Runtime API URL. Defaults to "https://agents.uclaw.dev". */
@@ -11,13 +11,6 @@ export interface AppClientOptions {
    * short-lived client token instead.
    */
   apiKey?: string;
-}
-
-export interface AgentSpec {
-  name?: string;
-  systemPrompt?: string;
-  model?: string;
-  tools?: string[];
 }
 
 export class Run {
@@ -105,6 +98,14 @@ export class AgentInstance {
   send(prompt: string) {
     return this.run(prompt);
   }
+
+  async updateConfig(config: AgentSpec): Promise<void> {
+    await this.rpcCall("updateConfig", [config]);
+  }
+
+  async currentConfig(): Promise<AgentSpec> {
+    return (await this.rpcCall("currentConfig", [])) as AgentSpec;
+  }
 }
 
 export class AppClient {
@@ -135,7 +136,7 @@ export class AppClient {
     }
   }
 
-  async createAgent(opts?: AgentSpec & { title?: string }): Promise<AgentInstance> {
+  async createAgent(opts?: AgentSpec): Promise<AgentInstance> {
     const summary = (await this.rpcCall(
       "createChat",
       opts ? [opts] : [],

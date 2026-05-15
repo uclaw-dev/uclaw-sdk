@@ -1,7 +1,7 @@
 import { useAgent } from "agents/react";
 import { useCallback, useMemo, useState, useRef } from "react";
 
-import type { AgentSummary, AppState } from "./types";
+import type { AgentSpec, AgentSummary, AppState } from "./types";
 
 const DEFAULT_URL = "https://agents.uclaw.dev";
 const APP_CLASS = "UClawApp";
@@ -20,7 +20,7 @@ export interface UseAppReturn {
   /** Ordered chat list from directory state broadcasts. */
   agents: AgentSummary[];
   /** Create a new chat. Returns the created summary. */
-  createAgent: (opts?: { title?: string }) => Promise<AgentSummary>;
+  createAgent: (opts?: AgentSpec) => Promise<AgentSummary>;
   /** Delete a chat by id. */
   deleteAgent: (id: string) => Promise<void>;
   /** Rename a chat. */
@@ -38,12 +38,7 @@ export function useApp(options: UseAppOptions): UseAppReturn {
     "connecting",
   );
   const query = useMemo(
-    () =>
-      getToken
-        ? async () => ({ token: await getToken() })
-        : token
-          ? { token }
-          : undefined,
+    () => (getToken ? async () => ({ token: await getToken() }) : token ? { token } : undefined),
     [getToken, token],
   );
 
@@ -112,8 +107,7 @@ export function useApp(options: UseAppOptions): UseAppReturn {
   );
 
   const createAgent = useCallback(
-    async (opts?: { title?: string }) =>
-      (await rpcCall("createChat", opts ? [opts] : [])) as AgentSummary,
+    async (opts?: AgentSpec) => (await rpcCall("createChat", opts ? [opts] : [])) as AgentSummary,
     [rpcCall],
   );
 
