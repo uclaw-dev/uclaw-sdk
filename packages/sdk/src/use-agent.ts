@@ -8,7 +8,6 @@ import type { AgentSpec } from "./types";
 
 const DEFAULT_URL = "https://agents.uclaw.dev";
 const APP_CLASS = "UClawApp";
-const AGENT_CLASS = "UClawAgent";
 
 export interface UseAgentOptions {
   /** Runtime API URL. Defaults to "https://agents.uclaw.dev". */
@@ -71,7 +70,6 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
   );
 
   // ── Active chat connection ────────────────────────────────────────
-  const chatSub = useMemo(() => [{ agent: AGENT_CLASS, name: chatId }], [chatId]);
   const query = useMemo(
     () => (getToken ? async () => ({ token: await getToken() }) : token ? { token } : undefined),
     [getToken, token],
@@ -81,8 +79,8 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
     host: url,
     agent: APP_CLASS,
     basePath: "app/" + appName,
+    path: "sub/" + chatId,
     query,
-    sub: chatSub,
     onOpen: useCallback(() => setAgentStatus("connected"), []),
     onClose: useCallback(() => {
       setAgentStatus("disconnected");

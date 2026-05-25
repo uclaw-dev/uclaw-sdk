@@ -25,7 +25,7 @@ export class Run {
   ) {}
 
   async *stream() {
-    const url = `${this.url}/app/${this.appName}/sub/u-claw-agent/${this.id}/rpc/send`;
+    const url = `${this.url}/app/${this.appName}/sub/${this.id}/rpc/send`;
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -81,17 +81,14 @@ export class AgentInstance {
   ) {}
 
   async rpcCall(method: string, args: any[] = []): Promise<any> {
-    const response = await fetch(
-      `${this.url}/app/${this.appName}/sub/u-claw-agent/${this.id}/rpc/${method}`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(this.apiKey ? { Authorization: `Bearer ${this.apiKey}` } : {}),
-        },
-        body: JSON.stringify(args),
+    const response = await fetch(`${this.url}/app/${this.appName}/sub/${this.id}/rpc/${method}`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(this.apiKey ? { Authorization: `Bearer ${this.apiKey}` } : {}),
       },
-    );
+      body: JSON.stringify(args),
+    });
     if (!response.ok) {
       throw new Error(await response.text());
     }
