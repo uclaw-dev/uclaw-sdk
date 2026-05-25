@@ -13,6 +13,8 @@ export interface UseAppOptions {
   token?: string;
   /** Fetches a short-lived client token from the host app backend. */
   getToken?: () => Promise<string>;
+  /** App name to connect to. Defaults to "default". */
+  appName?: string;
 }
 
 export interface UseAppReturn {
@@ -32,7 +34,25 @@ export interface UseAppReturn {
 }
 
 export function useApp(options: UseAppOptions): UseAppReturn {
-  const { getToken, token, url = DEFAULT_URL } = options;
+  const { getToken: customGetToken, token, url = DEFAULT_URL, appName = "default" } = options;
+
+  const getToken = useMemo(() => {
+    if (customGetToken) return customGetToken;
+    if (token) return undefined;
+    return async () => {
+      const res = await fetch("https://api.uclaw.dev/v1/client-tokens", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+        credentials: "include",
+      });
+      if (!res.ok) {
+        throw new Error(`Failed to fetch client token: ${res.statusText}`);
+      }
+      const data = (await res.json()) as { token: string };
+      return data.token;
+    };
+  }, [customGetToken, token]);
 
   const [appStatus, setAppStatus] = useState<"connecting" | "connected" | "disconnected">(
     "connecting",
@@ -55,7 +75,7 @@ export function useApp(options: UseAppOptions): UseAppReturn {
   const directory = useAgent<AppState>({
     host: url,
     agent: APP_CLASS,
-    basePath: "aaas",
+    basePath: "app/" + appName,
     query,
     onOpen: useCallback(() => setAppStatus("connected"), []),
     onClose: useCallback(() => {

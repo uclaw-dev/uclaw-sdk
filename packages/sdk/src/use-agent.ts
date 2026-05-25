@@ -21,6 +21,8 @@ export interface UseAgentOptions {
   getToken?: () => Promise<string>;
   /** Client-side tool handlers for the active chat. */
   onToolCall?: OnToolCallCallback;
+  /** App name to connect to. Defaults to "default". */
+  appName?: string;
 }
 
 export interface UseAgentReturn {
@@ -37,7 +39,32 @@ export interface UseAgentReturn {
 }
 
 export function useAgent(options: UseAgentOptions): UseAgentReturn {
-  const { getToken, token, url = DEFAULT_URL, chatId, onToolCall } = options;
+  const {
+    getToken: customGetToken,
+    token,
+    url = DEFAULT_URL,
+    chatId,
+    onToolCall,
+    appName = "default",
+  } = options;
+
+  const getToken = useMemo(() => {
+    if (customGetToken) return customGetToken;
+    if (token) return undefined;
+    return async () => {
+      const res = await fetch("https://api.uclaw.dev/v1/client-tokens", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ agentId: chatId }),
+        credentials: "include",
+      });
+      if (!res.ok) {
+        throw new Error(`Failed to fetch client token: ${res.statusText}`);
+      }
+      const data = (await res.json()) as { token: string };
+      return data.token;
+    };
+  }, [customGetToken, token, chatId]);
 
   const [agentStatus, setAgentStatus] = useState<"connecting" | "connected" | "disconnected">(
     "connecting",
@@ -53,7 +80,7 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
   const chatAgent = useRuntimeAgent({
     host: url,
     agent: APP_CLASS,
-    basePath: "aaas",
+    basePath: "app/" + appName,
     query,
     sub: chatSub,
     onOpen: useCallback(() => setAgentStatus("connected"), []),

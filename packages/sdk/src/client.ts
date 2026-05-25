@@ -11,6 +11,8 @@ export interface AppClientOptions {
    * short-lived client token instead.
    */
   apiKey?: string;
+  /** App name to connect to. Defaults to "default". */
+  appName?: string;
 }
 
 export class Run {
@@ -19,10 +21,11 @@ export class Run {
     private apiKey: string | undefined,
     private id: string,
     private prompt: string,
+    private appName: string = "default",
   ) {}
 
   async *stream() {
-    const url = `${this.url}/aaas/sub/u-claw-agent/${this.id}/rpc/send`;
+    const url = `${this.url}/app/${this.appName}/sub/u-claw-agent/${this.id}/rpc/send`;
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -74,17 +77,21 @@ export class AgentInstance {
     private url: string,
     private apiKey: string | undefined,
     public id: string,
+    private appName: string = "default",
   ) {}
 
   async rpcCall(method: string, args: any[] = []): Promise<any> {
-    const response = await fetch(`${this.url}/aaas/sub/UClawAgent/${this.id}/rpc/${method}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(this.apiKey ? { Authorization: `Bearer ${this.apiKey}` } : {}),
+    const response = await fetch(
+      `${this.url}/app/${this.appName}/sub/u-claw-agent/${this.id}/rpc/${method}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(this.apiKey ? { Authorization: `Bearer ${this.apiKey}` } : {}),
+        },
+        body: JSON.stringify(args),
       },
-      body: JSON.stringify(args),
-    });
+    );
     if (!response.ok) {
       throw new Error(await response.text());
     }
@@ -92,7 +99,7 @@ export class AgentInstance {
   }
 
   run(prompt: string) {
-    return new Run(this.url, this.apiKey, this.id, prompt);
+    return new Run(this.url, this.apiKey, this.id, prompt, this.appName);
   }
 
   send(prompt: string) {
@@ -111,14 +118,16 @@ export class AgentInstance {
 export class AppClient {
   private url: string;
   private apiKey?: string;
+  private appName: string;
 
   constructor(options: AppClientOptions = {}) {
     this.url = options.url || "https://agents.uclaw.dev";
     this.apiKey = options.apiKey;
+    this.appName = options.appName || "default";
   }
 
   async rpcCall(method: string, args: any[] = []): Promise<any> {
-    const response = await fetch(`${this.url}/aaas/rpc/${method}`, {
+    const response = await fetch(`${this.url}/app/${this.appName}/rpc/${method}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -141,7 +150,7 @@ export class AppClient {
       "createChat",
       opts ? [opts] : [],
     )) as unknown as AgentSummary;
-    return new AgentInstance(this.url, this.apiKey, summary.id);
+    return new AgentInstance(this.url, this.apiKey, summary.id, this.appName);
   }
 
   async listAgents(): Promise<AgentSummary[]> {
