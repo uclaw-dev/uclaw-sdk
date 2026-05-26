@@ -60,10 +60,168 @@ async function main() {
     } finally {
       await app.deleteAgent(agent.id);
     }
+  } else if (command === "app") {
+    const subCommand = args[1];
+    if (subCommand === "create") {
+      const appId = args[2];
+      if (!appId) {
+        console.error("Usage: uclaw app create <appId> [--name <name>] [--description <desc>]");
+        process.exit(1);
+      }
+
+      const nameIndex = args.indexOf("--name");
+      const name =
+        nameIndex >= 0 ? args[nameIndex + 1] : appId.charAt(0).toUpperCase() + appId.slice(1);
+
+      const descIndex = args.indexOf("--description");
+      const description = descIndex >= 0 ? args[descIndex + 1] : "";
+
+      const apiKey = process.env.UCLAW_API_KEY || readApiKey();
+      if (!apiKey) {
+        console.error(
+          "Missing API key. Set UCLAW_API_KEY or run: uclaw login --api-key <uc_live_...>",
+        );
+        process.exit(1);
+      }
+
+      const apiBaseUrl = process.env.UCLAW_API_URL || "https://api.uclaw.dev";
+
+      console.log(`> Registering app "${appId}"...`);
+      const response = await fetch(`${apiBaseUrl}/v1/apps`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({ appId, name, description }),
+      });
+
+      const responseText = await response.text();
+      if (!response.ok) {
+        console.error(`Failed to register app: ${response.status} - ${responseText}`);
+        process.exit(1);
+      }
+
+      console.log(`Successfully registered app: ${responseText}`);
+    } else if (subCommand === "deploy") {
+      const appId = args[2];
+      const dirPath = args[3];
+      if (!appId || !dirPath) {
+        console.error("Usage: uclaw app deploy <appId> <dir-path>");
+        process.exit(1);
+      }
+
+      const apiKey = process.env.UCLAW_API_KEY || readApiKey();
+      if (!apiKey) {
+        console.error(
+          "Missing API key. Set UCLAW_API_KEY or run: uclaw login --api-key <uc_live_...>",
+        );
+        process.exit(1);
+      }
+
+      const apiBaseUrl = process.env.UCLAW_API_URL || "https://api.uclaw.dev";
+
+      const fs = await import("node:fs/promises");
+      const { join, relative } = await import("node:path");
+
+      async function getFiles(dir: string): Promise<string[]> {
+        const subdirs = await fs.readdir(dir);
+        const files = await Promise.all(
+          subdirs.map(async (subdir) => {
+            const res = join(dir, subdir);
+            return (await fs.stat(res)).isDirectory() ? getFiles(res) : res;
+          }),
+        );
+        return files.flat();
+      }
+
+      let absolutePaths: string[];
+      try {
+        const pathStat = await fs.stat(dirPath);
+        if (!pathStat.isDirectory()) {
+          console.error(`Path ${dirPath} is not a directory.`);
+          process.exit(1);
+        }
+        absolutePaths = await getFiles(dirPath);
+      } catch (err: any) {
+        console.error(`Failed to read directory ${dirPath}:`, err.message);
+        process.exit(1);
+      }
+
+      if (absolutePaths.length === 0) {
+        console.error(`No files found in directory ${dirPath}`);
+        process.exit(1);
+      }
+
+      console.log(`> Found ${absolutePaths.length} files to deploy.`);
+
+      const formData = new FormData();
+      for (const absPath of absolutePaths) {
+        const relPath = relative(dirPath, absPath);
+        const mimeType = getMimeType(absPath);
+        const fileContent = await fs.readFile(absPath);
+        const blob = new Blob([fileContent], { type: mimeType });
+        formData.append(relPath, blob, relPath);
+      }
+
+      console.log(`> Uploading assets for "${appId}"...`);
+      const response = await fetch(`${apiBaseUrl}/v1/apps/${appId}/deploy`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: formData,
+      });
+
+      const responseText = await response.text();
+      if (!response.ok) {
+        console.error(`Failed to deploy assets: ${response.status} - ${responseText}`);
+        process.exit(1);
+      }
+
+      console.log(`Successfully deployed: ${responseText}`);
+    } else {
+      console.error(
+        "Unknown app command. Usage:\n" +
+          "  uclaw app create <appId> [--name <name>] [--description <desc>]\n" +
+          "  uclaw app deploy <appId> <dir-path>",
+      );
+      process.exit(1);
+    }
   } else {
-    console.error("Unknown command. Usage: uclaw login --api-key <key> | uclaw run <prompt>");
+    console.error(
+      "Unknown command. Usage:\n" +
+        "  uclaw login --api-key <key>\n" +
+        "  uclaw run <prompt>\n" +
+        "  uclaw app create <appId> [--name <name>] [--description <desc>]\n" +
+        "  uclaw app deploy <appId> <dir-path>",
+    );
     process.exit(1);
   }
+}
+
+function getMimeType(filePath: string): string {
+  const ext = filePath.split(".").pop()?.toLowerCase();
+  const mimes: Record<string, string> = {
+    html: "text/html; charset=utf-8",
+    htm: "text/html; charset=utf-8",
+    js: "application/javascript; charset=utf-8",
+    mjs: "application/javascript; charset=utf-8",
+    css: "text/css; charset=utf-8",
+    json: "application/json; charset=utf-8",
+    png: "image/png",
+    jpg: "image/jpeg",
+    jpeg: "image/jpeg",
+    gif: "image/gif",
+    svg: "image/svg+xml; charset=utf-8",
+    ico: "image/x-icon",
+    webp: "image/webp",
+    woff: "font/woff",
+    woff2: "font/woff2",
+    ttf: "font/ttf",
+    wasm: "application/wasm",
+  };
+  return mimes[ext || ""] || "application/octet-stream";
 }
 
 main().catch((err) => {
