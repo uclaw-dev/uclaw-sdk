@@ -54,7 +54,7 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
       const res = await fetch("https://api.uclaw.dev/v1/client-tokens", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ agentId: chatId }),
+        body: JSON.stringify({ appId: appName }),
         credentials: "include",
       });
       if (!res.ok) {
@@ -63,7 +63,7 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
       const data = (await res.json()) as { token: string };
       return data.token;
     };
-  }, [customGetToken, token, chatId]);
+  }, [customGetToken, token, appName]);
 
   const [agentStatus, setAgentStatus] = useState<"connecting" | "connected" | "disconnected">(
     "connecting",

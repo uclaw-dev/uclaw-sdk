@@ -43,7 +43,7 @@ export function useApp(options: UseAppOptions): UseAppReturn {
       const res = await fetch("https://api.uclaw.dev/v1/client-tokens", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
+        body: JSON.stringify({ appId: appName }),
         credentials: "include",
       });
       if (!res.ok) {
@@ -52,7 +52,7 @@ export function useApp(options: UseAppOptions): UseAppReturn {
       const data = (await res.json()) as { token: string };
       return data.token;
     };
-  }, [customGetToken, token]);
+  }, [customGetToken, token, appName]);
 
   const [appStatus, setAppStatus] = useState<"connecting" | "connected" | "disconnected">(
     "connecting",
