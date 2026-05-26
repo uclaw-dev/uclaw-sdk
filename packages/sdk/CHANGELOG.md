@@ -1,5 +1,13 @@
 # @uclaw/sdk
 
+## 0.0.9
+
+### Patch Changes
+
+- 2c767ee: support appName
+- d931c6a: Fix sub-agent rpc.
+- f9ed95e: Fix sub-agent connect path
+
 ## 0.0.8
 
 ### Patch Changes
