@@ -1,5 +1,15 @@
 # @uclaw/cli
 
+## 0.0.12
+
+### Patch Changes
+
+- db5de9c: Add app create and app deploy commands.
+- Updated dependencies [2c767ee]
+- Updated dependencies [d931c6a]
+- Updated dependencies [f9ed95e]
+  - @uclaw/sdk@0.0.9
+
 ## 0.0.11
 
 ### Patch Changes
