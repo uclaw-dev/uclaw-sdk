@@ -12,24 +12,24 @@ const APP_CLASS = "UClawApp";
 export interface UseAgentOptions {
   /** Runtime API URL. Defaults to "https://agents.uclaw.dev". */
   url?: string;
-  /** Active chat id. */
-  chatId: string;
+  /** Active agent id. */
+  agentId: string;
   /** Short-lived client token issued by a trusted backend. */
   token?: string;
   /** Fetches a short-lived client token from the host app backend. */
   getToken?: () => Promise<string>;
-  /** Client-side tool handlers for the active chat. */
+  /** Client-side tool handlers for the active agent. */
   onToolCall?: OnToolCallCallback;
   /** App name to connect to. Defaults to "default". */
   appName?: string;
 }
 
 export interface UseAgentReturn {
-  // ── Active chat (messages + streaming) ──
+  // ── Active agent (messages + streaming) ──
   chat: ReturnType<typeof useAgentChat>;
 
   // ── Connection status ──
-  /** Active chat WebSocket status. */
+  /** Active agent WebSocket status. */
   agentStatus: "connecting" | "connected" | "disconnected";
   /** Update agent configuration. */
   updateConfig: (config: AgentSpec) => Promise<void>;
@@ -42,7 +42,7 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
     getToken: customGetToken,
     token,
     url = DEFAULT_URL,
-    chatId,
+    agentId,
     onToolCall,
     appName = "default",
   } = options;
@@ -69,17 +69,17 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
     "connecting",
   );
 
-  // ── Active chat connection ────────────────────────────────────────
+  // ── Active agent connection ────────────────────────────────────────
   const query = useMemo(
     () => (getToken ? async () => ({ token: await getToken() }) : token ? { token } : undefined),
     [getToken, token],
   );
 
-  const chatAgent = useRuntimeAgent({
+  const runtimeAgent = useRuntimeAgent({
     host: url,
     agent: APP_CLASS,
     basePath: "app/" + appName,
-    path: "sub/" + chatId,
+    path: "sub/" + agentId,
     query,
     onOpen: useCallback(() => setAgentStatus("connected"), []),
     onClose: useCallback(() => {
@@ -125,7 +125,7 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
       return new Promise((resolve, reject) => {
         const id = crypto.randomUUID();
         pendingCallsRef.current.set(id, { resolve, reject });
-        chatAgent.send(
+        runtimeAgent.send(
           JSON.stringify({
             type: "rpc-request",
             id,
@@ -135,7 +135,7 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
         );
       });
     },
-    [chatAgent],
+    [runtimeAgent],
   );
 
   const updateConfig = useCallback(
@@ -150,7 +150,7 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
   }, [rpcCall]);
 
   const chat = useAgentChat({
-    agent: chatAgent,
+    agent: runtimeAgent,
     onToolCall,
     experimental_throttle: 200,
   });

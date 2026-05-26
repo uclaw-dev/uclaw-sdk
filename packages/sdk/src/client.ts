@@ -144,18 +144,18 @@ export class AppClient {
 
   async createAgent(opts?: AgentSpec): Promise<AgentInstance> {
     const summary = (await this.rpcCall(
-      "createChat",
+      "createAgent",
       opts ? [opts] : [],
     )) as unknown as AgentSummary;
     return new AgentInstance(this.url, this.apiKey, summary.id, this.appName);
   }
 
   async listAgents(): Promise<AgentSummary[]> {
-    const summaries = (await this.rpcCall("listChats")) as unknown as AgentSummary[];
+    const summaries = (await this.rpcCall("listAgents")) as unknown as AgentSummary[];
     return summaries;
   }
 
   async deleteAgent(id: string): Promise<void> {
-    await this.rpcCall("deleteChat", [id]);
+    await this.rpcCall("deleteAgent", [id]);
   }
 }

@@ -18,14 +18,14 @@ export interface UseAppOptions {
 }
 
 export interface UseAppReturn {
-  // ── Directory (chat management) ──
-  /** Ordered chat list from directory state broadcasts. */
+  // ── Directory (agent management) ──
+  /** Ordered agent list from directory state broadcasts. */
   agents: AgentSummary[];
-  /** Create a new chat. Returns the created summary. */
+  /** Create a new agent. Returns the created summary. */
   createAgent: (opts?: AgentSpec) => Promise<AgentSummary>;
-  /** Delete a chat by id. */
+  /** Delete an agent by id. */
   deleteAgent: (id: string) => Promise<void>;
-  /** Rename a chat. */
+  /** Rename an agent. */
   renameAgent: (id: string, title: string) => Promise<void>;
 
   // ── Connection status ──
@@ -127,20 +127,20 @@ export function useApp(options: UseAppOptions): UseAppReturn {
   );
 
   const createAgent = useCallback(
-    async (opts?: AgentSpec) => (await rpcCall("createChat", opts ? [opts] : [])) as AgentSummary,
+    async (opts?: AgentSpec) => (await rpcCall("createAgent", opts ? [opts] : [])) as AgentSummary,
     [rpcCall],
   );
 
   const renameAgent = useCallback(
     async (id: string, title: string) => {
-      await rpcCall("renameChat", [id, title]);
+      await rpcCall("renameAgent", [id, title]);
     },
     [rpcCall],
   );
 
   const deleteAgent = useCallback(
     async (id: string) => {
-      await rpcCall("deleteChat", [id]);
+      await rpcCall("deleteAgent", [id]);
     },
     [rpcCall],
   );
