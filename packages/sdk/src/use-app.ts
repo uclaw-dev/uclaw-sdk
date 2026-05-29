@@ -36,6 +36,11 @@ export interface UseAppReturn {
     prompt: string,
     opts?: { model?: string; systemPrompt?: string; modelTier?: "fast" | "capable" },
   ) => Promise<string>;
+  /** Stream text generation chunks using SSE. */
+  streamText: (
+    prompt: string,
+    opts?: { model?: string; systemPrompt?: string; modelTier?: "fast" | "capable" },
+  ) => AsyncGenerator<string>;
 }
 
 export function useApp(options: UseAppOptions): UseAppReturn {
@@ -160,6 +165,69 @@ export function useApp(options: UseAppOptions): UseAppReturn {
     [rpcCall],
   );
 
+  const streamText = useCallback(
+    async function* (
+      prompt: string,
+      opts?: { model?: string; systemPrompt?: string; modelTier?: "fast" | "capable" },
+    ): AsyncGenerator<string> {
+      let activeToken = token;
+      if (!activeToken && getToken) {
+        activeToken = await getToken();
+      }
+
+      const streamUrl = `${url}/app/${appId}/rpc/streamText`;
+      const response = await fetch(streamUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(activeToken ? { Authorization: `Bearer ${activeToken}` } : {}),
+        },
+        body: JSON.stringify([prompt, opts]),
+      });
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+
+      const reader = response.body?.getReader();
+      if (!reader) return;
+
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const data = line.slice(6);
+              if (data === "[DONE]") break;
+              try {
+                const parsed = JSON.parse(data);
+                if (parsed.type === "text-delta" && parsed.delta) {
+                  yield parsed.delta;
+                } else if (parsed.type === "error" && parsed.errorText) {
+                  throw new Error(parsed.errorText);
+                }
+              } catch (e) {
+                if (e instanceof Error) throw e;
+              }
+            }
+          }
+        }
+      } finally {
+        reader.releaseLock();
+      }
+    },
+    [token, getToken, url, appId],
+  );
+
   return {
     appStatus,
     agents,
@@ -167,5 +235,6 @@ export function useApp(options: UseAppOptions): UseAppReturn {
     deleteAgent,
     renameAgent,
     generateText,
+    streamText,
   };
 }

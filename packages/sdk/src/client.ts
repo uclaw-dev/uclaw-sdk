@@ -165,4 +165,59 @@ export class AppClient {
   ): Promise<string> {
     return (await this.rpcCall("generateText", [prompt, opts])) as string;
   }
+
+  async *streamText(
+    prompt: string,
+    opts?: { model?: string; systemPrompt?: string; modelTier?: "fast" | "capable" },
+  ): AsyncGenerator<string> {
+    const url = `${this.url}/app/${this.appId}/rpc/streamText`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        ...(this.apiKey ? { Authorization: `Bearer ${this.apiKey}` } : {}),
+      },
+      body: JSON.stringify([prompt, opts]),
+    });
+
+    if (!response.ok) {
+      throw new Error(await response.text());
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) return;
+
+    const decoder = new TextDecoder();
+    let buffer = "";
+
+    try {
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split("\n");
+        buffer = lines.pop() || "";
+
+        for (const line of lines) {
+          if (line.startsWith("data: ")) {
+            const data = line.slice(6);
+            if (data === "[DONE]") break;
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.type === "text-delta" && parsed.delta) {
+                yield parsed.delta;
+              } else if (parsed.type === "error" && parsed.errorText) {
+                throw new Error(parsed.errorText);
+              }
+            } catch (e) {
+              if (e instanceof Error) throw e;
+            }
+          }
+        }
+      }
+    } finally {
+      reader.releaseLock();
+    }
+  }
 }

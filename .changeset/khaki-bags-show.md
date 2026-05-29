@@ -2,4 +2,4 @@
 "@uclaw/sdk": patch
 ---
 
-Add generateText to client and hook.
+Add generateText/streamText to client and hook.
