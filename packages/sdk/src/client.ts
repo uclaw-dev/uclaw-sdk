@@ -158,4 +158,11 @@ export class AppClient {
   async deleteAgent(id: string): Promise<void> {
     await this.rpcCall("deleteAgent", [id]);
   }
+
+  async generateText(
+    prompt: string,
+    opts?: { model?: string; systemPrompt?: string; modelTier?: "fast" | "capable" },
+  ): Promise<string> {
+    return (await this.rpcCall("generateText", [prompt, opts])) as string;
+  }
 }

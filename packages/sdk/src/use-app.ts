@@ -31,6 +31,11 @@ export interface UseAppReturn {
   // ── Connection status ──
   /** Directory WebSocket readyState. */
   appStatus: "connecting" | "connected" | "disconnected";
+  /** Generate text directly using a prompt. */
+  generateText: (
+    prompt: string,
+    opts?: { model?: string; systemPrompt?: string; modelTier?: "fast" | "capable" },
+  ) => Promise<string>;
 }
 
 export function useApp(options: UseAppOptions): UseAppReturn {
@@ -145,11 +150,22 @@ export function useApp(options: UseAppOptions): UseAppReturn {
     [rpcCall],
   );
 
+  const generateText = useCallback(
+    async (
+      prompt: string,
+      opts?: { model?: string; systemPrompt?: string; modelTier?: "fast" | "capable" },
+    ): Promise<string> => {
+      return (await rpcCall("generateText", [prompt, opts])) as string;
+    },
+    [rpcCall],
+  );
+
   return {
     appStatus,
     agents,
     createAgent,
     deleteAgent,
     renameAgent,
+    generateText,
   };
 }
