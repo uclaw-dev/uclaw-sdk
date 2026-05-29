@@ -36,7 +36,7 @@ export interface UseAppReturn {
     prompt: string,
     opts?: {
       model?: string;
-      systemPrompt?: string;
+      instructions?: string;
       modelTier?: "fast" | "capable";
       reasoning?: "provider-default" | "none";
     },
@@ -46,7 +46,7 @@ export interface UseAppReturn {
     prompt: string,
     opts?: {
       model?: string;
-      systemPrompt?: string;
+      instructions?: string;
       modelTier?: "fast" | "capable";
       reasoning?: "provider-default" | "none";
     },
@@ -170,7 +170,7 @@ export function useApp(options: UseAppOptions): UseAppReturn {
       prompt: string,
       opts?: {
         model?: string;
-        systemPrompt?: string;
+        instructions?: string;
         modelTier?: "fast" | "capable";
         reasoning?: "provider-default" | "none";
       },
@@ -185,7 +185,7 @@ export function useApp(options: UseAppOptions): UseAppReturn {
       prompt: string,
       opts?: {
         model?: string;
-        systemPrompt?: string;
+        instructions?: string;
         modelTier?: "fast" | "capable";
         reasoning?: "provider-default" | "none";
       },

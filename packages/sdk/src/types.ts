@@ -34,8 +34,7 @@ export type ToolDefinition =
 export interface AgentSpec {
   name?: string;
   title?: string;
-  persona?: string;
-  systemPrompt?: string;
+  instructions?: string;
   model?: string;
   modelTier?: "fast" | "capable";
   tools?: ToolDefinition[];

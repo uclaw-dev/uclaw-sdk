@@ -163,7 +163,7 @@ export class AppClient {
     prompt: string,
     opts?: {
       model?: string;
-      systemPrompt?: string;
+      instructions?: string;
       modelTier?: "fast" | "capable";
       reasoning?: "provider-default" | "none";
     },
@@ -175,7 +175,7 @@ export class AppClient {
     prompt: string,
     opts?: {
       model?: string;
-      systemPrompt?: string;
+      instructions?: string;
       modelTier?: "fast" | "capable";
       reasoning?: "provider-default" | "none";
     },
