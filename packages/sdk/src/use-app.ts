@@ -34,12 +34,22 @@ export interface UseAppReturn {
   /** Generate text directly using a prompt. */
   generateText: (
     prompt: string,
-    opts?: { model?: string; systemPrompt?: string; modelTier?: "fast" | "capable" },
+    opts?: {
+      model?: string;
+      systemPrompt?: string;
+      modelTier?: "fast" | "capable";
+      reasoning?: "provider-default" | "none";
+    },
   ) => Promise<string>;
   /** Stream text generation chunks using SSE. */
   streamText: (
     prompt: string,
-    opts?: { model?: string; systemPrompt?: string; modelTier?: "fast" | "capable" },
+    opts?: {
+      model?: string;
+      systemPrompt?: string;
+      modelTier?: "fast" | "capable";
+      reasoning?: "provider-default" | "none";
+    },
   ) => AsyncGenerator<string>;
 }
 
@@ -158,7 +168,12 @@ export function useApp(options: UseAppOptions): UseAppReturn {
   const generateText = useCallback(
     async (
       prompt: string,
-      opts?: { model?: string; systemPrompt?: string; modelTier?: "fast" | "capable" },
+      opts?: {
+        model?: string;
+        systemPrompt?: string;
+        modelTier?: "fast" | "capable";
+        reasoning?: "provider-default" | "none";
+      },
     ): Promise<string> => {
       return (await rpcCall("generateText", [prompt, opts])) as string;
     },
@@ -168,7 +183,12 @@ export function useApp(options: UseAppOptions): UseAppReturn {
   const streamText = useCallback(
     async function* (
       prompt: string,
-      opts?: { model?: string; systemPrompt?: string; modelTier?: "fast" | "capable" },
+      opts?: {
+        model?: string;
+        systemPrompt?: string;
+        modelTier?: "fast" | "capable";
+        reasoning?: "provider-default" | "none";
+      },
     ): AsyncGenerator<string> {
       let activeToken = token;
       if (!activeToken && getToken) {

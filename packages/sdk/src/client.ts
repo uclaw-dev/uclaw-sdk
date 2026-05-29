@@ -161,14 +161,24 @@ export class AppClient {
 
   async generateText(
     prompt: string,
-    opts?: { model?: string; systemPrompt?: string; modelTier?: "fast" | "capable" },
+    opts?: {
+      model?: string;
+      systemPrompt?: string;
+      modelTier?: "fast" | "capable";
+      reasoning?: "provider-default" | "none";
+    },
   ): Promise<string> {
     return (await this.rpcCall("generateText", [prompt, opts])) as string;
   }
 
   async *streamText(
     prompt: string,
-    opts?: { model?: string; systemPrompt?: string; modelTier?: "fast" | "capable" },
+    opts?: {
+      model?: string;
+      systemPrompt?: string;
+      modelTier?: "fast" | "capable";
+      reasoning?: "provider-default" | "none";
+    },
   ): AsyncGenerator<string> {
     const url = `${this.url}/app/${this.appId}/rpc/streamText`;
     const response = await fetch(url, {
