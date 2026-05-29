@@ -1,5 +1,15 @@
 # @uclaw/sdk
 
+## 0.0.10
+
+### Patch Changes
+
+- 64230ce: Add reasoning config to generateText and streamText.
+- d49b601: Rename systemPrompt to instructions.
+- 2131c1c: Add generateText/streamText to client and hook.
+- 457023a: Replace chat with agent.
+- d51700a: Use appId to specify apps. Add tool config.
+
 ## 0.0.9
 
 ### Patch Changes
