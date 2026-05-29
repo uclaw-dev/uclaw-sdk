@@ -20,8 +20,10 @@ export interface UseAgentOptions {
   getToken?: () => Promise<string>;
   /** Client-side tool handlers for the active agent. */
   onToolCall?: OnToolCallCallback;
-  /** App name to connect to. Defaults to "default". */
-  appName?: string;
+  /** App ID to connect to. Defaults to "default". */
+  appId?: string;
+  /** Agent configuration to apply on connect if specified. */
+  config?: AgentSpec;
 }
 
 export interface UseAgentReturn {
@@ -44,7 +46,8 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
     url = DEFAULT_URL,
     agentId,
     onToolCall,
-    appName = "default",
+    appId = "default",
+    config,
   } = options;
 
   const getToken = useMemo(() => {
@@ -54,7 +57,7 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
       const res = await fetch("https://api.uclaw.dev/v1/client-tokens", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ appId: appName }),
+        body: JSON.stringify({ appId }),
         credentials: "include",
       });
       if (!res.ok) {
@@ -63,11 +66,13 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
       const data = (await res.json()) as { token: string };
       return data.token;
     };
-  }, [customGetToken, token, appName]);
+  }, [customGetToken, token, appId]);
 
   const [agentStatus, setAgentStatus] = useState<"connecting" | "connected" | "disconnected">(
     "connecting",
   );
+
+  const rpcCallRef = useRef<((method: string, args?: any[]) => Promise<any>) | null>(null);
 
   // ── Active agent connection ────────────────────────────────────────
   const query = useMemo(
@@ -78,10 +83,17 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
   const runtimeAgent = useRuntimeAgent({
     host: url,
     agent: APP_CLASS,
-    basePath: "app/" + appName,
+    basePath: "app/" + appId,
     path: "sub/" + agentId,
     query,
-    onOpen: useCallback(() => setAgentStatus("connected"), []),
+    onOpen: useCallback(() => {
+      setAgentStatus("connected");
+      if (config) {
+        rpcCallRef.current?.("updateConfig", [config]).catch((err) => {
+          console.error("Failed to update agent config on connect:", err);
+        });
+      }
+    }, [config]),
     onClose: useCallback(() => {
       setAgentStatus("disconnected");
       const error = new Error("Connection closed");
@@ -137,6 +149,7 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
     },
     [runtimeAgent],
   );
+  rpcCallRef.current = rpcCall;
 
   const updateConfig = useCallback(
     async (config: AgentSpec) => {

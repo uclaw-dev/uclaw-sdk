@@ -11,8 +11,8 @@ export interface AppClientOptions {
    * short-lived client token instead.
    */
   apiKey?: string;
-  /** App name to connect to. Defaults to "default". */
-  appName?: string;
+  /** App ID to connect to. Defaults to "default". */
+  appId?: string;
 }
 
 export class Run {
@@ -21,11 +21,11 @@ export class Run {
     private apiKey: string | undefined,
     private id: string,
     private prompt: string,
-    private appName: string = "default",
+    private appId: string = "default",
   ) {}
 
   async *stream() {
-    const url = `${this.url}/app/${this.appName}/sub/${this.id}/rpc/send`;
+    const url = `${this.url}/app/${this.appId}/sub/${this.id}/rpc/send`;
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -77,11 +77,11 @@ export class AgentInstance {
     private url: string,
     private apiKey: string | undefined,
     public id: string,
-    private appName: string = "default",
+    private appId: string = "default",
   ) {}
 
   async rpcCall(method: string, args: any[] = []): Promise<any> {
-    const response = await fetch(`${this.url}/app/${this.appName}/sub/${this.id}/rpc/${method}`, {
+    const response = await fetch(`${this.url}/app/${this.appId}/sub/${this.id}/rpc/${method}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -96,7 +96,7 @@ export class AgentInstance {
   }
 
   run(prompt: string) {
-    return new Run(this.url, this.apiKey, this.id, prompt, this.appName);
+    return new Run(this.url, this.apiKey, this.id, prompt, this.appId);
   }
 
   send(prompt: string) {
@@ -115,16 +115,16 @@ export class AgentInstance {
 export class AppClient {
   private url: string;
   private apiKey?: string;
-  private appName: string;
+  private appId: string;
 
   constructor(options: AppClientOptions = {}) {
     this.url = options.url || "https://agents.uclaw.dev";
     this.apiKey = options.apiKey;
-    this.appName = options.appName || "default";
+    this.appId = options.appId || "default";
   }
 
   async rpcCall(method: string, args: any[] = []): Promise<any> {
-    const response = await fetch(`${this.url}/app/${this.appName}/rpc/${method}`, {
+    const response = await fetch(`${this.url}/app/${this.appId}/rpc/${method}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -147,7 +147,7 @@ export class AppClient {
       "createAgent",
       opts ? [opts] : [],
     )) as unknown as AgentSummary;
-    return new AgentInstance(this.url, this.apiKey, summary.id, this.appName);
+    return new AgentInstance(this.url, this.apiKey, summary.id, this.appId);
   }
 
   async listAgents(): Promise<AgentSummary[]> {

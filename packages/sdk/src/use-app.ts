@@ -13,8 +13,8 @@ export interface UseAppOptions {
   token?: string;
   /** Fetches a short-lived client token from the host app backend. */
   getToken?: () => Promise<string>;
-  /** App name to connect to. Defaults to "default". */
-  appName?: string;
+  /** App ID to connect to. Defaults to "default". */
+  appId?: string;
 }
 
 export interface UseAppReturn {
@@ -34,7 +34,7 @@ export interface UseAppReturn {
 }
 
 export function useApp(options: UseAppOptions): UseAppReturn {
-  const { getToken: customGetToken, token, url = DEFAULT_URL, appName = "default" } = options;
+  const { getToken: customGetToken, token, url = DEFAULT_URL, appId = "default" } = options;
 
   const getToken = useMemo(() => {
     if (customGetToken) return customGetToken;
@@ -43,7 +43,7 @@ export function useApp(options: UseAppOptions): UseAppReturn {
       const res = await fetch("https://api.uclaw.dev/v1/client-tokens", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ appId: appName }),
+        body: JSON.stringify({ appId }),
         credentials: "include",
       });
       if (!res.ok) {
@@ -52,7 +52,7 @@ export function useApp(options: UseAppOptions): UseAppReturn {
       const data = (await res.json()) as { token: string };
       return data.token;
     };
-  }, [customGetToken, token, appName]);
+  }, [customGetToken, token, appId]);
 
   const [appStatus, setAppStatus] = useState<"connecting" | "connected" | "disconnected">(
     "connecting",
@@ -75,7 +75,7 @@ export function useApp(options: UseAppOptions): UseAppReturn {
   const directory = useAgent<AppState>({
     host: url,
     agent: APP_CLASS,
-    basePath: "app/" + appName,
+    basePath: "app/" + appId,
     query,
     onOpen: useCallback(() => setAppStatus("connected"), []),
     onClose: useCallback(() => {
