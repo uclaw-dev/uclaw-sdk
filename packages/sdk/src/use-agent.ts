@@ -86,6 +86,7 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
     basePath: "app/" + appId,
     path: "sub/" + agentId,
     query,
+    enabled: !!(appId && agentId),
     onOpen: useCallback(() => {
       setAgentStatus("connected");
       if (config) {

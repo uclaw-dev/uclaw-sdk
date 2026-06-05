@@ -19,15 +19,15 @@
     "tc": "tsc --noEmit"
   },
   "dependencies": {
-    "@cloudflare/ai-chat": "^0.7.0",
-    "agents": "^0.12.4"
+    "@cloudflare/ai-chat": "^0.8.1",
+    "agents": "^0.14.1"
   },
   "devDependencies": {
-    "@types/react": "^19.2.14",
-    "react": "^19.2.6",
+    "@types/react": "^19.2.16",
+    "react": "^19.2.7",
     "typescript": "^6.0.3"
   },
   "peerDependencies": {
-    "react": "^19.0.0"
+    "react": "^19.2.7"
   }
 }
