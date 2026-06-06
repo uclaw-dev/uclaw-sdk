@@ -4,7 +4,7 @@ import { useAgentChat } from "@cloudflare/ai-chat/react";
 import { useAgent as useRuntimeAgent } from "agents/react";
 import { useCallback, useState, useMemo, useRef } from "react";
 
-import type { AgentSpec } from "./types";
+import type { AgentConfig } from "./types";
 
 const DEFAULT_URL = "https://agents.uclaw.dev";
 const APP_CLASS = "UClawApp";
@@ -23,7 +23,7 @@ export interface UseAgentOptions {
   /** App ID to connect to. Defaults to "default". */
   appId?: string;
   /** Agent configuration to apply on connect if specified. */
-  config?: AgentSpec;
+  config?: AgentConfig;
 }
 
 export interface UseAgentReturn {
@@ -34,9 +34,9 @@ export interface UseAgentReturn {
   /** Active agent WebSocket status. */
   agentStatus: "connecting" | "connected" | "disconnected";
   /** Update agent configuration. */
-  updateConfig: (config: AgentSpec) => Promise<void>;
+  updateConfig: (config: AgentConfig) => Promise<void>;
   /** Get current agent configuration. */
-  currentConfig: () => Promise<AgentSpec>;
+  currentConfig: () => Promise<AgentConfig>;
 }
 
 export function useAgent(options: UseAgentOptions): UseAgentReturn {
@@ -153,14 +153,14 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
   rpcCallRef.current = rpcCall;
 
   const updateConfig = useCallback(
-    async (config: AgentSpec) => {
+    async (config: AgentConfig) => {
       await rpcCall("updateConfig", [config]);
     },
     [rpcCall],
   );
 
   const currentConfig = useCallback(async () => {
-    return (await rpcCall("currentConfig", [])) as AgentSpec;
+    return (await rpcCall("currentConfig", [])) as AgentConfig;
   }, [rpcCall]);
 
   const chat = useAgentChat({

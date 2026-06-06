@@ -1,3 +1,20 @@
+import type { JSONSchema7, UIMessageChunk } from "ai";
+
+export interface AppClientOptions {
+  /** Runtime API URL. Defaults to "https://agents.uclaw.dev". */
+  url?: string;
+  /**
+   * UClaw API key generated from the developer dashboard.
+   *
+   * Server-side only: never pass this from browser code or expose it in a
+   * public bundle. Browser apps should use @uclaw/sdk/react hooks with a
+   * short-lived client token instead.
+   */
+  apiKey?: string;
+  /** App ID to connect to. Defaults to "default". */
+  appId?: string;
+}
+
 export interface AgentSummary {
   id: string;
   title: string;
@@ -6,42 +23,97 @@ export interface AgentSummary {
   lastMessagePreview?: string;
 }
 
-export interface ClientToolSchema {
-  name: string;
-  description?: string;
-  parameters?: Record<string, any>;
-}
-
-export type ToolDefinition =
-  | { type: "builtin"; id: string }
-  | {
-      type: "http";
-      name: string;
-      description: string;
-      endpoint: string;
-      parameters: any;
-      headers?: Record<string, string>;
-    }
-  | {
-      type: "code";
-      name: string;
-      description: string;
-      handler: string;
-      parameters: any;
-      source?: string;
-    };
-
-export interface AgentSpec {
-  name?: string;
-  title?: string;
-  instructions?: string;
-  model?: string;
-  modelTier?: "fast" | "capable";
-  tools?: ToolDefinition[];
-  clientTools?: ClientToolSchema[];
-  maxSteps?: number;
-}
-
 export interface AppState {
   agents: AgentSummary[];
 }
+
+export interface CreateAgentInput {
+  title?: string;
+  config?: AgentConfig;
+}
+
+export interface AgentConfig {
+  modelProvider?: string;
+  modelTier?: "fast" | "capable";
+  model?: string;
+  instructions?: string;
+  maxSteps?: number;
+  extensions?: ExtensionDefinition[];
+  capabilities?: CapabilityDefinition[];
+}
+
+export type Environment = "agent" | "app";
+
+export interface ExtensionDefinition {
+  environment?: Environment;
+  name: string;
+  description?: string;
+  parameters?: JsonSchema;
+  code?: string;
+}
+
+export type Capability = "read" | "write" | "execute" | "database" | "network" | "secret";
+
+export type CapabilityDefinition =
+  | Capability
+  | {
+      environment?: Environment;
+      capabilities: Capability[];
+    };
+
+export type RunStatus =
+  | "queued"
+  | "running"
+  | "requires_action"
+  | "succeeded"
+  | "failed"
+  | "cancelled";
+
+export type RunEvent = UIMessageChunk;
+
+export interface RunState {
+  id: string;
+  agentId: string;
+  status: RunStatus;
+  createdAt: number;
+  updatedAt: number;
+  completedAt?: number;
+  events: RunEvent[];
+  output?: unknown;
+  error?: UClawErrorShape;
+}
+
+export interface RunWaitOptions {
+  until?: RunStatus | RunStatus[];
+  timeoutMs?: number;
+  pollIntervalMs?: number;
+}
+
+export interface RunStreamOptions {
+  after?: number | string;
+  signal?: AbortSignal;
+}
+
+export type JsonSchema = JSONSchema7;
+
+export interface UClawErrorShape {
+  code: string;
+  message: string;
+  status?: number;
+}
+
+export interface TextGenerationOptions {
+  model?: string;
+  instructions?: string;
+  modelTier?: "fast" | "capable";
+  reasoning?: ReasoningOptions;
+}
+
+export type ReasoningOptions =
+  | "none"
+  | "provider-default"
+  | "minimal"
+  | "low"
+  | "medium"
+  | "high"
+  | "xhigh";

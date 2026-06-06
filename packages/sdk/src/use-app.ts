@@ -1,7 +1,7 @@
 import { useAgent } from "agents/react";
 import { useCallback, useMemo, useState, useRef } from "react";
 
-import type { AgentSpec, AgentSummary, AppState } from "./types";
+import type { AgentSummary, AppState, CreateAgentInput } from "./types";
 
 const DEFAULT_URL = "https://agents.uclaw.dev";
 const APP_CLASS = "UClawApp";
@@ -22,7 +22,7 @@ export interface UseAppReturn {
   /** Ordered agent list from directory state broadcasts. */
   agents: AgentSummary[];
   /** Create a new agent. Returns the created summary. */
-  createAgent: (opts?: AgentSpec) => Promise<AgentSummary>;
+  createAgent: (opts?: CreateAgentInput) => Promise<AgentSummary>;
   /** Delete an agent by id. */
   deleteAgent: (id: string) => Promise<void>;
   /** Rename an agent. */
@@ -147,7 +147,8 @@ export function useApp(options: UseAppOptions): UseAppReturn {
   );
 
   const createAgent = useCallback(
-    async (opts?: AgentSpec) => (await rpcCall("createAgent", opts ? [opts] : [])) as AgentSummary,
+    async (opts?: CreateAgentInput) =>
+      (await rpcCall("createAgent", opts ? [opts] : [])) as AgentSummary,
     [rpcCall],
   );
 

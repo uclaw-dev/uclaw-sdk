@@ -6,10 +6,11 @@
     "url": "git+https://github.com/uclaw-dev/uclaw-sdk.git"
   },
   "files": [
-    "dist/"
+    "dist/",
+    "examples/"
   ],
   "type": "module",
-  "types": "src/index.ts",
+  "types": "./dist/index.d.mts",
   "exports": {
     ".": "./dist/index.mjs",
     "./react": "./dist/react.mjs",
@@ -20,7 +21,8 @@
   },
   "dependencies": {
     "@cloudflare/ai-chat": "^0.8.1",
-    "agents": "^0.14.1"
+    "agents": "^0.14.1",
+    "ai": "^6"
   },
   "devDependencies": {
     "@types/react": "^19.2.16",
