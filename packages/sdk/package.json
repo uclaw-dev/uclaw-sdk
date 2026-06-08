@@ -2,6 +2,7 @@
   "name": "@uclaw/sdk",
   "version": "0.0.13",
   "homepage": "https://uclaw.dev",
+  "license": "MIT",
   "repository": {
     "url": "git+https://github.com/uclaw-dev/uclaw-sdk.git"
   },

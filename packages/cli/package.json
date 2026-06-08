@@ -3,6 +3,7 @@
   "version": "0.0.16",
   "description": "[EXPERIMENTAL] Command-line interface for UClaw. Note: This package is currently experimental and not intended for public/production use.",
   "homepage": "https://uclaw.dev",
+  "license": "MIT",
   "repository": {
     "url": "git+https://github.com/uclaw-dev/uclaw-sdk.git"
   },
