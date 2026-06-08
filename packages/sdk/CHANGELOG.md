@@ -1,5 +1,11 @@
 # @uclaw/sdk
 
+## 0.0.12
+
+### Patch Changes
+
+- 4960c31: Add official server-side Request handler `AppClient.handler` and update React hook defaults to retrieve client tokens from `/api/uclaw/client-tokens`.
+
 ## 0.0.11
 
 ### Patch Changes

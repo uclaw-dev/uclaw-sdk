@@ -1,6 +1,6 @@
 {
   "name": "@uclaw/cli",
-  "version": "0.0.14",
+  "version": "0.0.15",
   "homepage": "https://uclaw.dev",
   "repository": {
     "url": "git+https://github.com/uclaw-dev/uclaw-sdk.git"
