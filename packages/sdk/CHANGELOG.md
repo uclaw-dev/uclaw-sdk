@@ -1,5 +1,11 @@
 # @uclaw/sdk
 
+## 0.0.13
+
+### Patch Changes
+
+- e48c7ae: Fix client token generation.
+
 ## 0.0.12
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # @uclaw/cli
 
+## 0.0.16
+
+### Patch Changes
+
+- Updated dependencies [e48c7ae]
+  - @uclaw/sdk@0.0.13
+
 ## 0.0.15
 
 ### Patch Changes
