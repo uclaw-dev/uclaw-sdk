@@ -1,6 +1,6 @@
 {
   "name": "@uclaw/sdk",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "homepage": "https://uclaw.dev",
   "repository": {
     "url": "git+https://github.com/uclaw-dev/uclaw-sdk.git"
