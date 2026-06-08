@@ -57,6 +57,10 @@ export class AppClient {
       }
     }
   }
+
+  async handler(request: Request): Promise<Response> {
+    return await this.transport.handleRequest(request);
+  }
 }
 
 export class AgentsResource {
@@ -306,6 +310,72 @@ class RuntimeTransport {
 
   async agentStream(agentId: string, method: string, args: RpcArgs): Promise<Response> {
     return await this.rpcResponse(`${this.agentPath(agentId)}/rpc/${method}`, args);
+  }
+
+  async handleRequest(request: Request): Promise<Response> {
+    if (request.method !== "POST") {
+      return new Response(JSON.stringify({ error: "Method Not Allowed" }), {
+        status: 405,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const url = new URL(request.url);
+    if (!url.pathname.endsWith("/client-tokens")) {
+      return new Response(JSON.stringify({ error: "Not Found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const apiKey =
+      this.apiKey ?? (typeof process !== "undefined" ? process.env.UCLAW_API_KEY : undefined);
+    if (!apiKey) {
+      return new Response(JSON.stringify({ error: "UCLAW_API_KEY is not configured" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
+    const gatewayUrl = this.url;
+
+    try {
+      const response = await fetch(`${gatewayUrl}/v1/client-tokens`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ appId: this.appId }),
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        return new Response(
+          JSON.stringify({ error: data.error ?? "Failed to create UClaw client token" }),
+          {
+            status: response.status,
+            headers: { "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      return new Response(
+        JSON.stringify({
+          token: data.token,
+          expiresAt: data.expiresAt,
+        }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    } catch (err: any) {
+      return new Response(JSON.stringify({ error: err.message || "Internal Server Error" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
   }
 
   private async rpcResponse(path: string, args: RpcArgs): Promise<Response> {

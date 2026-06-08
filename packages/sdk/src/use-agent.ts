@@ -6,6 +6,8 @@ import { useCallback, useState, useMemo, useRef } from "react";
 
 import type { AgentConfig } from "./types";
 
+import { getDefaultGetToken } from "./utils";
+
 const DEFAULT_URL = "https://agents.uclaw.dev";
 const APP_CLASS = "UClawApp";
 
@@ -53,19 +55,7 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
   const getToken = useMemo(() => {
     if (customGetToken) return customGetToken;
     if (token) return undefined;
-    return async () => {
-      const res = await fetch("https://api.uclaw.dev/v1/client-tokens", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ appId }),
-        credentials: "include",
-      });
-      if (!res.ok) {
-        throw new Error(`Failed to fetch client token: ${res.statusText}`);
-      }
-      const data = (await res.json()) as { token: string };
-      return data.token;
-    };
+    return getDefaultGetToken(appId);
   }, [customGetToken, token, appId]);
 
   const [agentStatus, setAgentStatus] = useState<"connecting" | "connected" | "disconnected">(
