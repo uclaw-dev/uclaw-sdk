@@ -1,5 +1,11 @@
 # @uclaw/sdk
 
+## 0.0.11
+
+### Patch Changes
+
+- 5ba2c0c: Stabilize server-side agent API.
+
 ## 0.0.10
 
 ### Patch Changes
