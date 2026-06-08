@@ -1,6 +1,6 @@
 {
   "name": "@uclaw/cli",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "description": "[EXPERIMENTAL] Command-line interface for UClaw. Note: This package is currently experimental and not intended for public/production use.",
   "homepage": "https://uclaw.dev",
   "license": "MIT",

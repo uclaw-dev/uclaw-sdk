@@ -1,5 +1,13 @@
 # @uclaw/cli
 
+## 0.0.17
+
+### Patch Changes
+
+- 54204b8: Pre-release fixes.
+- Updated dependencies [54204b8]
+  - @uclaw/sdk@0.0.14
+
 ## 0.0.16
 
 ### Patch Changes
