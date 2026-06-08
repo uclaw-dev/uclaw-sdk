@@ -1,6 +1,8 @@
 import { AppClient } from "@uclaw/sdk";
 
-const app = new AppClient();
+const app = new AppClient({
+  apiKey: process.env.UCLAW_API_KEY,
+});
 
 const agent = await app.agents.create({
   title: "Research agent",

@@ -286,7 +286,7 @@ class RuntimeTransport {
 
   constructor(options: AppClientOptions = {}) {
     this.url = trimTrailingSlash(options.url || DEFAULT_URL);
-    this.apiKey = options.apiKey || process.env.UCLAW_API_KEY;
+    this.apiKey = options.apiKey;
     this.appId = options.appId || "default";
   }
 
