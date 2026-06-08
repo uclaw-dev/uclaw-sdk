@@ -337,6 +337,16 @@ class RuntimeTransport {
       });
     }
 
+    let targetAppId = this.appId;
+    try {
+      const body = await request.clone().json();
+      if (body && typeof body === "object" && "appId" in body && typeof body.appId === "string") {
+        targetAppId = body.appId;
+      }
+    } catch {
+      // ignore parsing errors
+    }
+
     try {
       const response = await fetch("https://api.uclaw.dev/v1/client-tokens", {
         method: "POST",
@@ -344,7 +354,7 @@ class RuntimeTransport {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ appId: this.appId }),
+        body: JSON.stringify({ appId: targetAppId }),
       });
 
       const data = await response.json().catch(() => ({}));

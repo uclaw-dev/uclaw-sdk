@@ -24,6 +24,7 @@ export function getDefaultGetToken(appId: string): () => Promise<string> {
       const res = await fetch("/api/uclaw/client-tokens", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ appId }),
         credentials: "include",
       });
 
