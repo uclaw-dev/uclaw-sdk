@@ -32,5 +32,10 @@
   },
   "peerDependencies": {
     "react": "^19.2.7"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
   }
 }

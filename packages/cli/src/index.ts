@@ -38,10 +38,10 @@ async function main() {
     const app = new AppClient({ url: process.env.UCLAW_URL, apiKey });
 
     console.log(`> Creating agent...`);
-    const agent = await app.createAgent({ name: "CLI Run" });
+    const agent = await app.agents.create({ title: "CLI Run" });
 
     console.log(`> Sending prompt: "${prompt}"\n`);
-    const run = agent.send(prompt);
+    const run = await agent.run(prompt);
 
     try {
       for await (const event of run.stream()) {
@@ -58,7 +58,7 @@ async function main() {
       console.error("\nRun failed:", err);
       process.exit(1);
     } finally {
-      await app.deleteAgent(agent.id);
+      await app.agents.delete(agent.id);
     }
   } else if (command === "app") {
     const subCommand = args[1];

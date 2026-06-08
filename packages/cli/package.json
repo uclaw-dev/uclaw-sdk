@@ -1,6 +1,7 @@
 {
   "name": "@uclaw/cli",
   "version": "0.0.16",
+  "description": "[EXPERIMENTAL] Command-line interface for UClaw. Note: This package is currently experimental and not intended for public/production use.",
   "homepage": "https://uclaw.dev",
   "repository": {
     "url": "git+https://github.com/uclaw-dev/uclaw-sdk.git"
@@ -16,8 +17,13 @@
     ".": "./dist/index.mjs",
     "./package.json": "./package.json"
   },
-  "scripts": {},
+  "scripts": {
+    "tc": "tsc --noEmit"
+  },
   "dependencies": {
     "@uclaw/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
   }
 }
