@@ -1,6 +1,6 @@
 # @uclaw/sdk
 
-The official TypeScript SDK for UClaw — a managed runtime for stateful AI agents. Build production-ready agentic applications without managing WebSocket connections, SQLite session states, or credit ledgers.
+The official TypeScript SDK for UClaw — a managed runtime for stateful AI agents. Build production-ready agentic applications without managing WebSocket connections, SQLite session states, or sandbox execution environment.
 
 ## Installation
 

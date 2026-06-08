@@ -1,7 +1,9 @@
+"use client";
+
 import { useAgent } from "agents/react";
 import { useCallback, useMemo, useState, useRef } from "react";
 
-import type { AgentSummary, AppState, CreateAgentInput } from "./types";
+import type { AgentSummary, AppState, CreateAgentInput, TextGenerationOptions } from "./types";
 
 import { getDefaultGetToken } from "./utils";
 
@@ -32,27 +34,13 @@ export interface UseAppReturn {
 
   // ── Connection status ──
   /** Directory WebSocket readyState. */
-  appStatus: "connecting" | "connected" | "disconnected";
+  status: "connecting" | "connected" | "disconnected";
   /** Generate text directly using a prompt. */
-  generateText: (
-    prompt: string,
-    opts?: {
-      model?: string;
-      instructions?: string;
-      modelTier?: "fast" | "capable";
-      reasoning?: "provider-default" | "none";
-    },
-  ) => Promise<string>;
+  generateText: (prompt: string, opts?: TextGenerationOptions) => Promise<string>;
   /** Stream text generation chunks using SSE. */
-  streamText: (
-    prompt: string,
-    opts?: {
-      model?: string;
-      instructions?: string;
-      modelTier?: "fast" | "capable";
-      reasoning?: "provider-default" | "none";
-    },
-  ) => AsyncGenerator<string>;
+  streamText: (prompt: string, opts?: TextGenerationOptions) => AsyncGenerator<string>;
+  /** Connection or setup error, if any. */
+  error: Error | null;
 }
 
 export function useApp(options: UseAppOptions): UseAppReturn {
@@ -64,9 +52,8 @@ export function useApp(options: UseAppOptions): UseAppReturn {
     return getDefaultGetToken(appId);
   }, [customGetToken, token, appId]);
 
-  const [appStatus, setAppStatus] = useState<"connecting" | "connected" | "disconnected">(
-    "connecting",
-  );
+  const [status, setStatus] = useState<"connecting" | "connected" | "disconnected">("connecting");
+  const [error, setError] = useState<Error | null>(null);
   const query = useMemo(
     () => (getToken ? async () => ({ token: await getToken() }) : token ? { token } : undefined),
     [getToken, token],
@@ -87,14 +74,28 @@ export function useApp(options: UseAppOptions): UseAppReturn {
     agent: APP_CLASS,
     basePath: "app/" + appId,
     query,
-    onOpen: useCallback(() => setAppStatus("connected"), []),
-    onClose: useCallback(() => {
-      setAppStatus("disconnected");
+    onOpen: useCallback(() => {
+      setStatus("connected");
+      setError(null);
+    }, []),
+    onClose: useCallback((event?: any) => {
+      setStatus("disconnected");
+      if (event && event.code !== 1000 && event.code !== 1001) {
+        setError(new Error(event.reason || `Connection closed abnormally (code ${event.code})`));
+      }
       const error = new Error("Connection closed");
       for (const pending of pendingCallsRef.current.values()) {
         pending.reject(error);
       }
       pendingCallsRef.current.clear();
+    }, []),
+    onError: useCallback((event: any) => {
+      console.error("UClaw app socket connection error:", event);
+      setError(new Error("Socket connection error"));
+    }, []),
+    onStateUpdateError: useCallback((err: string) => {
+      console.error("UClaw app state update error:", err);
+      setError(new Error(err));
     }, []),
     onMessage: useCallback((event: MessageEvent) => {
       try {
@@ -157,30 +158,14 @@ export function useApp(options: UseAppOptions): UseAppReturn {
   );
 
   const generateText = useCallback(
-    async (
-      prompt: string,
-      opts?: {
-        model?: string;
-        instructions?: string;
-        modelTier?: "fast" | "capable";
-        reasoning?: "provider-default" | "none";
-      },
-    ): Promise<string> => {
+    async (prompt: string, opts?: TextGenerationOptions): Promise<string> => {
       return (await rpcCall("generateText", [prompt, opts])) as string;
     },
     [rpcCall],
   );
 
   const streamText = useCallback(
-    async function* (
-      prompt: string,
-      opts?: {
-        model?: string;
-        instructions?: string;
-        modelTier?: "fast" | "capable";
-        reasoning?: "provider-default" | "none";
-      },
-    ): AsyncGenerator<string> {
+    async function* (prompt: string, opts?: TextGenerationOptions): AsyncGenerator<string> {
       let activeToken = token;
       if (!activeToken && getToken) {
         activeToken = await getToken();
@@ -240,7 +225,8 @@ export function useApp(options: UseAppOptions): UseAppReturn {
   );
 
   return {
-    appStatus,
+    status,
+    error,
     agents,
     createAgent,
     deleteAgent,

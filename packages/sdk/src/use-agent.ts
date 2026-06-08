@@ -1,3 +1,5 @@
+"use client";
+
 import type { OnToolCallCallback } from "@cloudflare/ai-chat/react";
 
 import { useAgentChat } from "@cloudflare/ai-chat/react";
@@ -34,7 +36,9 @@ export interface UseAgentReturn {
 
   // ── Connection status ──
   /** Active agent WebSocket status. */
-  agentStatus: "connecting" | "connected" | "disconnected";
+  status: "connecting" | "connected" | "disconnected";
+  /** Connection or setup error, if any. */
+  error: Error | null;
   /** Update agent configuration. */
   updateConfig: (config: AgentConfig) => Promise<void>;
   /** Get current agent configuration. */
@@ -58,9 +62,8 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
     return getDefaultGetToken(appId);
   }, [customGetToken, token, appId]);
 
-  const [agentStatus, setAgentStatus] = useState<"connecting" | "connected" | "disconnected">(
-    "connecting",
-  );
+  const [status, setStatus] = useState<"connecting" | "connected" | "disconnected">("connecting");
+  const [error, setError] = useState<Error | null>(null);
 
   const rpcCallRef = useRef<((method: string, args?: any[]) => Promise<any>) | null>(null);
 
@@ -78,20 +81,32 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
     query,
     enabled: !!(appId && agentId),
     onOpen: useCallback(() => {
-      setAgentStatus("connected");
+      setStatus("connected");
+      setError(null);
       if (config) {
         rpcCallRef.current?.("updateConfig", [config]).catch((err) => {
           console.error("Failed to update agent config on connect:", err);
         });
       }
     }, [config]),
-    onClose: useCallback(() => {
-      setAgentStatus("disconnected");
+    onClose: useCallback((event?: any) => {
+      setStatus("disconnected");
+      if (event && event.code !== 1000 && event.code !== 1001) {
+        setError(new Error(event.reason || `Connection closed abnormally (code ${event.code})`));
+      }
       const error = new Error("Connection closed");
       for (const pending of pendingCallsRef.current.values()) {
         pending.reject(error);
       }
       pendingCallsRef.current.clear();
+    }, []),
+    onError: useCallback((event: any) => {
+      console.error("UClaw agent socket connection error:", event);
+      setError(new Error("Socket connection error"));
+    }, []),
+    onStateUpdateError: useCallback((err: string) => {
+      console.error("UClaw agent state update error:", err);
+      setError(new Error(err));
     }, []),
     onMessage: useCallback((event: MessageEvent) => {
       try {
@@ -161,7 +176,8 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
 
   return {
     chat,
-    agentStatus,
+    status,
+    error,
     updateConfig,
     currentConfig,
   };
