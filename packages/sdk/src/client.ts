@@ -337,10 +337,8 @@ class RuntimeTransport {
       });
     }
 
-    const gatewayUrl = this.url;
-
     try {
-      const response = await fetch(`${gatewayUrl}/v1/client-tokens`, {
+      const response = await fetch("https://api.uclaw.dev/v1/client-tokens", {
         method: "POST",
         headers: {
           Authorization: `Bearer ${apiKey}`,
