@@ -52,7 +52,14 @@ export interface ExtensionDefinition {
   code?: string;
 }
 
-export type Capability = "read" | "write" | "execute" | "database" | "network" | "secret";
+export type Capability =
+  | "read"
+  | "write"
+  | "execute"
+  | "database"
+  | "network"
+  | "secret"
+  | "browser";
 
 export type CapabilityDefinition =
   | Capability
