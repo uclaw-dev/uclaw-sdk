@@ -33,11 +33,13 @@ export class UClawError extends Error implements UClawErrorShape {
 
 export class AppClient {
   readonly agents: AgentsResource;
+  readonly secrets: SecretsResource;
   private transport: RuntimeTransport;
 
   constructor(options: AppClientOptions = {}) {
     this.transport = new RuntimeTransport(options);
     this.agents = new AgentsResource(this.transport);
+    this.secrets = new SecretsResource(this.transport);
   }
 
   async generateText(prompt: string, opts?: TextGenerationOptions): Promise<string> {
@@ -85,6 +87,22 @@ export class AgentsResource {
 
   async delete(agentId: string): Promise<void> {
     await this.transport.appRpc("deleteAgent", [agentId]);
+  }
+}
+
+export class SecretsResource {
+  constructor(private transport: RuntimeTransport) {}
+
+  async add(key: string, value: string, options?: { allowedHosts?: string[] }): Promise<void> {
+    await this.transport.appRpc("addSecret", [key, value, options]);
+  }
+
+  async list(): Promise<string[]> {
+    return await this.transport.appRpc<string[]>("listSecrets");
+  }
+
+  async remove(key: string): Promise<void> {
+    await this.transport.appRpc("removeSecret", [key]);
   }
 }
 

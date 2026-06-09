@@ -1,5 +1,5 @@
 ---
-"@uclaw/sdk": minor
+"@uclaw/sdk": patch
 ---
 
 Improve React hooks developer experience:
