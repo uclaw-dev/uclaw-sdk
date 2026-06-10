@@ -124,3 +124,10 @@ export type ReasoningOptions =
   | "medium"
   | "high"
   | "xhigh";
+
+export interface SecretInfo {
+  name: string;
+  options?: {
+    allowedHosts?: string[];
+  };
+}

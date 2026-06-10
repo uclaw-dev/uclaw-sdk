@@ -8,6 +8,7 @@ import type {
   RunStatus,
   RunStreamOptions,
   RunWaitOptions,
+  SecretInfo,
   TextGenerationOptions,
   UClawErrorShape,
 } from "./types";
@@ -97,8 +98,8 @@ export class SecretsResource {
     await this.transport.appRpc("addSecret", [key, value, options]);
   }
 
-  async list(): Promise<string[]> {
-    return await this.transport.appRpc<string[]>("listSecrets");
+  async list(): Promise<SecretInfo[]> {
+    return await this.transport.appRpc<SecretInfo[]>("listSecrets");
   }
 
   async remove(key: string): Promise<void> {
