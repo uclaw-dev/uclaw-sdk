@@ -29,7 +29,7 @@
     },
     "packages/sdk": {
       "name": "@uclaw/sdk",
-      "version": "0.0.14",
+      "version": "0.1.0-canary.1",
       "dependencies": {
         "@cloudflare/ai-chat": "^0.8.1",
         "agents": "^0.14.1",

@@ -212,10 +212,10 @@ export class Run {
 
       for await (const data of readSse(response)) {
         const event = parseJson(data);
+        this.pushEvent(event as RunEvent);
         if (isErrorEvent(event)) {
           throw new UClawError({ code: "stream_error", message: event.errorText });
         }
-        this.pushEvent(event as RunEvent);
       }
 
       this.streamClosed = true;

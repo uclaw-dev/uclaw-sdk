@@ -1,11 +1,20 @@
 # @uclaw/sdk
 
-The official TypeScript SDK for UClaw — a managed runtime for stateful AI agents. Build production-ready agentic applications without managing WebSocket connections, SQLite session states, or sandbox execution environment.
+[![npm](https://img.shields.io/npm/v/@uclaw/sdk?label=npm)](https://www.npmjs.com/package/@uclaw/sdk)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/uclaw-dev/uclaw-sdk)
+
+The official TypeScript SDK for UClaw, a managed runtime for stateful AI agents. Build agentic applications without managing WebSocket connections, session persistence, runtime orchestration, or usage metering yourself.
 
 ## Installation
 
 ```bash
 npm install @uclaw/sdk
+```
+
+For canary smoke tests before the `0.1.0` launch:
+
+```bash
+npm install @uclaw/sdk@canary
 ```
 
 ---
@@ -20,7 +29,7 @@ Use `AppClient` in server-side scripts, APIs, or background jobs. It authenticat
 import { AppClient } from "@uclaw/sdk";
 
 const app = new AppClient({
-  apiKey: process.env.UCLAW_API_KEY, // Default fallback is process.env.UCLAW_API_KEY
+  apiKey: process.env.UCLAW_API_KEY,
   appId: "default",
 });
 
@@ -41,6 +50,17 @@ for await (const event of run.stream()) {
   }
 }
 ```
+
+Common server-side APIs:
+
+- `app.agents.create(input)` creates a stateful agent session.
+- `app.agents.list()` lists existing agent sessions for the app.
+- `agent.run(input)` starts a run.
+- `run.wait(options)` waits for a run status.
+- `run.stream()` streams typed run events.
+- `app.generateText(prompt, options)` runs stateless text generation.
+- `app.streamText(prompt, options)` streams stateless text generation.
+- `app.secrets.add/list/remove` manages app-level secrets.
 
 ### 2. Next.js / Server Route Handler (Client Token Exchange)
 
@@ -129,8 +149,23 @@ function ChatPane({ agentId }: { agentId: string }) {
 
 ---
 
+## Features
+
+- Stateful agent sessions with app-scoped directories.
+- Server-side `AppClient` for scripts, API routes, workers, and jobs.
+- Browser-safe React hooks via short-lived client tokens.
+- Real-time streaming over the managed runtime.
+- Model configuration by model ID or tier.
+- Usage metering and prepaid USD balance support.
+- App-level secrets management for external API integrations.
+
+---
+
 ## Documentation & Resources
 
 - **Console & Keys**: [https://uclaw.dev](https://uclaw.dev)
 - **Documentation**: [https://uclaw.dev/docs](https://uclaw.dev/docs)
+- **Quickstart**: [https://uclaw.dev/docs/quickstart](https://uclaw.dev/docs/quickstart)
+- **API Reference**: [https://api.uclaw.dev/reference](https://api.uclaw.dev/reference)
 - **Examples & Cookbooks**: Check out the `@uclaw/sdk` examples in the [`uclaw-cookbook`](https://github.com/uclaw-dev/uclaw-cookbook) repo.
+- **Support**: [Discord](https://discord.gg/jWbnM2Fs5) or [support@uclaw.dev](mailto:support@uclaw.dev)

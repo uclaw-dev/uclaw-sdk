@@ -1,5 +1,15 @@
 # @uclaw/sdk
 
+## 0.1.0-canary.1
+
+### Prerelease Changes
+
+- Prepare the SDK for the `0.1.0` launch canary.
+- Add app-level secrets management APIs.
+- Improve React hooks for Next.js App Router, error state, and dynamic `appId` token exchange.
+- Include secret metadata when listing secrets.
+- Preserve streamed error events in run state before surfacing the run failure.
+
 ## 0.0.14
 
 ### Patch Changes

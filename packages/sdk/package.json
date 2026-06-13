@@ -1,10 +1,25 @@
 {
   "name": "@uclaw/sdk",
-  "version": "0.0.14",
+  "version": "0.1.0-canary.1",
+  "description": "Official TypeScript SDK for UClaw, a managed runtime for stateful AI agents.",
+  "keywords": [
+    "agents",
+    "ai",
+    "cloudflare",
+    "llm",
+    "react",
+    "sdk",
+    "typescript"
+  ],
   "homepage": "https://uclaw.dev",
+  "bugs": {
+    "url": "https://github.com/uclaw-dev/uclaw-sdk/issues"
+  },
   "license": "MIT",
   "repository": {
-    "url": "git+https://github.com/uclaw-dev/uclaw-sdk.git"
+    "type": "git",
+    "url": "git+https://github.com/uclaw-dev/uclaw-sdk.git",
+    "directory": "packages/sdk"
   },
   "files": [
     "dist/",
@@ -16,6 +31,9 @@
     ".": "./dist/index.mjs",
     "./react": "./dist/react.mjs",
     "./package.json": "./package.json"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "tc": "tsc --noEmit"
