@@ -11,7 +11,7 @@ import type { AgentConfig } from "./types";
 import { getDefaultGetToken } from "./utils";
 
 const DEFAULT_URL = "https://agents.uclaw.dev";
-const APP_CLASS = "UClawApp";
+const AGENT_CLASS = "UClawAgent";
 
 export interface UseAgentOptions {
   /** Runtime API URL. Defaults to "https://agents.uclaw.dev". */
@@ -75,9 +75,9 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
 
   const runtimeAgent = useRuntimeAgent({
     host: url,
-    agent: APP_CLASS,
-    basePath: "app/" + appId,
-    path: "sub/" + agentId,
+    agent: AGENT_CLASS,
+    name: agentId,
+    basePath: `app/${appId}/sub/${agentId}`,
     query,
     enabled: !!(appId && agentId),
     onOpen: useCallback(() => {

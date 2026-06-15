@@ -1,6 +1,6 @@
 {
   "name": "@uclaw/sdk",
-  "version": "0.1.0-canary.1",
+  "version": "0.1.0-canary.2",
   "description": "Official TypeScript SDK for UClaw, a managed runtime for stateful AI agents.",
   "keywords": [
     "agents",
@@ -39,18 +39,18 @@
     "tc": "tsc --noEmit"
   },
   "dependencies": {
-    "@cloudflare/ai-chat": "^0.8.1",
-    "agents": "^0.14.1",
-    "ai": "^6"
+    "@cloudflare/ai-chat": "^0.8.5",
+    "agents": "^0.16.0",
+    "ai": "^6.0.205"
   },
   "devDependencies": {
-    "@types/node": "^25.9.2",
-    "@types/react": "^19.2.16",
+    "@types/node": "^25.9.3",
+    "@types/react": "^19.2.17",
     "react": "^19.2.7",
     "typescript": "^6.0.3"
   },
   "peerDependencies": {
-    "react": "^19.2.7"
+    "react": "^19"
   },
   "peerDependenciesMeta": {
     "react": {
