@@ -1,11 +1,10 @@
 # UClaw SDK
 
-The official TypeScript SDK monorepo for [UClaw](https://uclaw.dev), a managed runtime for stateful AI agents.
+The official TypeScript SDK monorepo for [UClaw](https://uclaw.dev), a managed runtime for durable AI agents.
 
 ## Packages
 
 - [`@uclaw/sdk`](./packages/sdk): production SDK for server-side `AppClient` usage and browser-safe React hooks.
-- [`@uclaw/cli`](./packages/cli): experimental CLI package for internal testing. The public launch path is the SDK and copy-paste quickstart scripts.
 
 ## Quick Start
 
@@ -21,7 +20,6 @@ const app = new AppClient({
 });
 
 const agent = await app.agents.create({
-  title: "Launch assistant",
   config: {
     instructions: "You are a helpful assistant.",
     modelTier: "fast",
@@ -31,7 +29,7 @@ const agent = await app.agents.create({
 const run = await agent.run("Draft a launch checklist.");
 
 for await (const event of run.stream()) {
-  if (event.type === "text-delta" && event.delta) {
+  if (event.type === "text-delta") {
     process.stdout.write(event.delta);
   }
 }
