@@ -34,7 +34,7 @@ export interface CreateAgentInput {
 
 export interface AgentConfig {
   modelProvider?: string;
-  modelTier?: "fast" | "capable";
+  modelTier?: "fast" | "balanced" | "capable";
   model?: string;
   instructions?: string;
   maxSteps?: number;
@@ -111,8 +111,9 @@ export interface UClawErrorShape {
 
 export interface TextGenerationOptions {
   model?: string;
+  modelProvider?: string;
   instructions?: string;
-  modelTier?: "fast" | "capable";
+  modelTier?: "fast" | "balanced" | "capable";
   reasoning?: ReasoningOptions;
 }
 
