@@ -1,6 +1,6 @@
 {
   "name": "@uclaw/sdk",
-  "version": "0.1.0-canary.2",
+  "version": "0.1.0",
   "description": "Official TypeScript SDK for UClaw, a managed runtime for stateful AI agents.",
   "keywords": [
     "agents",
