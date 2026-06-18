@@ -39,9 +39,9 @@
     "tc": "tsc --noEmit"
   },
   "dependencies": {
-    "@cloudflare/ai-chat": "^0.8.5",
-    "agents": "^0.16.0",
-    "ai": "^6.0.205"
+    "@cloudflare/ai-chat": "^0.8.6",
+    "agents": "^0.16.2",
+    "ai": "^6.0.208"
   },
   "devDependencies": {
     "@types/node": "^25.9.3",
