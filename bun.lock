@@ -16,7 +16,7 @@
     },
     "packages/sdk": {
       "name": "@uclaw/sdk",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "dependencies": {
         "@cloudflare/ai-chat": "^0.8.6",
         "agents": "^0.16.2",

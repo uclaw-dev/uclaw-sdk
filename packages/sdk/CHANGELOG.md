@@ -1,15 +1,24 @@
 # @uclaw/sdk
 
+## 0.1.1
+
+### Patch Changes
+
+- 44e7cb8: Bump dependencies.
+- 69cb979: Document useAgent chat return.
+
 ## 0.1.0
 
 ### Patch Changes
 
 - 6957047: Add secrets management interface to the SDK.
+
   - Expose `client.secrets` interface with `add`, `list`, and `remove` methods to manage app-level secrets.
 
 - 502da8d: Add balanced model tier option.
 - beca26e: Fix dynamic appId token exchange flow by passing appId in the local request body and parsing it in the server handler.
 - 685aced: Improve React hooks developer experience:
+
   - Add `"use client";` to react hook entries for Next.js App Router compatibility.
   - Unify `reasoning` parameter type inside hooks with `ReasoningOptions`.
   - Add `error` state to both `useApp` and `useAgent` for capturing socket connection and state update errors.
