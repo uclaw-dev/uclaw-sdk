@@ -32,6 +32,14 @@ export interface UseAgentOptions {
 
 export interface UseAgentReturn {
   // ── Active agent (messages + streaming) ──
+  /**
+   * AI SDK `useChat`-compatible chat controller for the active agent.
+   *
+   * Use this object to read chat state (`messages`, `status`, `error`) and
+   * drive the conversation (`sendMessage`, `regenerate`, `stop`, `setMessages`,
+   * and related helpers). See the AI SDK `useChat` return-value reference:
+   * https://ai-sdk.dev/docs/reference/ai-sdk-ui/use-chat#returns
+   */
   chat: ReturnType<typeof useAgentChat>;
 
   // ── Connection status ──
