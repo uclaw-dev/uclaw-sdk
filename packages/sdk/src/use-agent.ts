@@ -60,7 +60,7 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
     url = DEFAULT_URL,
     agentId,
     onToolCall,
-    appId = "default",
+    appId,
     config,
   } = options;
 
@@ -76,18 +76,39 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
   const rpcCallRef = useRef<((method: string, args?: any[]) => Promise<any>) | null>(null);
 
   // ── Active agent connection ────────────────────────────────────────
-  const query = useMemo(
-    () => (getToken ? async () => ({ token: await getToken() }) : token ? { token } : undefined),
-    [getToken, token],
-  );
+  const query = useMemo(() => {
+    const getQueryObj = async () => {
+      const q: Record<string, string> = {};
+      if (appId) {
+        q.appId = appId;
+      }
+      if (getToken) {
+        q.token = await getToken();
+      } else if (token) {
+        q.token = token;
+      }
+      return q;
+    };
+    if (getToken) {
+      return getQueryObj;
+    }
+    const q: Record<string, string> = {};
+    if (appId) {
+      q.appId = appId;
+    }
+    if (token) {
+      q.token = token;
+    }
+    return Object.keys(q).length > 0 ? q : undefined;
+  }, [getToken, token, appId]);
 
   const runtimeAgent = useRuntimeAgent({
     host: url,
     agent: AGENT_CLASS,
     name: agentId,
-    basePath: `app/${appId}/sub/${agentId}`,
+    basePath: `_/sub/${agentId}`,
     query,
-    enabled: !!(appId && agentId),
+    enabled: !!agentId,
     onOpen: useCallback(() => {
       setStatus("connected");
       setError(null);

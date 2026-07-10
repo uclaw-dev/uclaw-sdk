@@ -1,4 +1,4 @@
-export function getDefaultGetToken(appId: string): () => Promise<string> {
+export function getDefaultGetToken(appId?: string): () => Promise<string> {
   return async () => {
     let isUClawDev = false;
     if (typeof window !== "undefined" && window.location) {
@@ -10,7 +10,7 @@ export function getDefaultGetToken(appId: string): () => Promise<string> {
       const res = await fetch("https://api.uclaw.dev/v1/client-tokens", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ appId }),
+        body: JSON.stringify(appId ? { appId } : {}),
         credentials: "include",
       });
 
@@ -24,7 +24,7 @@ export function getDefaultGetToken(appId: string): () => Promise<string> {
       const res = await fetch("/api/uclaw/client-tokens", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ appId }),
+        body: JSON.stringify(appId ? { appId } : {}),
         credentials: "include",
       });
 

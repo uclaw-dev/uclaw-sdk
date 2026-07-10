@@ -43,8 +43,8 @@ export interface UseAppReturn {
   error: Error | null;
 }
 
-export function useApp(options: UseAppOptions): UseAppReturn {
-  const { getToken: customGetToken, token, url = DEFAULT_URL, appId = "default" } = options;
+export function useApp(options: UseAppOptions = {}): UseAppReturn {
+  const { getToken: customGetToken, token, url = DEFAULT_URL, appId } = options;
 
   const getToken = useMemo(() => {
     if (customGetToken) return customGetToken;
@@ -54,10 +54,31 @@ export function useApp(options: UseAppOptions): UseAppReturn {
 
   const [status, setStatus] = useState<"connecting" | "connected" | "disconnected">("connecting");
   const [error, setError] = useState<Error | null>(null);
-  const query = useMemo(
-    () => (getToken ? async () => ({ token: await getToken() }) : token ? { token } : undefined),
-    [getToken, token],
-  );
+  const query = useMemo(() => {
+    const getQueryObj = async () => {
+      const q: Record<string, string> = {};
+      if (appId) {
+        q.appId = appId;
+      }
+      if (getToken) {
+        q.token = await getToken();
+      } else if (token) {
+        q.token = token;
+      }
+      return q;
+    };
+    if (getToken) {
+      return getQueryObj;
+    }
+    const q: Record<string, string> = {};
+    if (appId) {
+      q.appId = appId;
+    }
+    if (token) {
+      q.token = token;
+    }
+    return Object.keys(q).length > 0 ? q : undefined;
+  }, [getToken, token, appId]);
 
   const pendingCallsRef = useRef(
     new Map<
@@ -72,7 +93,7 @@ export function useApp(options: UseAppOptions): UseAppReturn {
   const directory = useAgent<AppState>({
     host: url,
     agent: APP_CLASS,
-    basePath: "app/" + appId,
+    basePath: "_",
     query,
     onOpen: useCallback(() => {
       setStatus("connected");
@@ -171,8 +192,12 @@ export function useApp(options: UseAppOptions): UseAppReturn {
         activeToken = await getToken();
       }
 
-      const streamUrl = `${url}/app/${appId}/rpc/streamText`;
-      const response = await fetch(streamUrl, {
+      const baseUrl = typeof window !== "undefined" ? window.location.origin : undefined;
+      const streamUrl = new URL(`${url}/_/rpc/streamText`, baseUrl);
+      if (appId) {
+        streamUrl.searchParams.set("appId", appId);
+      }
+      const response = await fetch(streamUrl.toString(), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

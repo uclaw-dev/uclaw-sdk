@@ -304,13 +304,13 @@ export class Run {
 
 class RuntimeTransport {
   readonly url: string;
-  readonly appId: string;
+  readonly appId?: string;
   private apiKey?: string;
 
   constructor(options: AppClientOptions = {}) {
     this.url = trimTrailingSlash(options.url || DEFAULT_URL);
     this.apiKey = options.apiKey;
-    this.appId = options.appId || "default";
+    this.appId = options.appId;
   }
 
   async appRpc<T = unknown>(method: string, args: RpcArgs = []): Promise<T> {
@@ -373,7 +373,7 @@ class RuntimeTransport {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ appId: targetAppId }),
+        body: JSON.stringify(targetAppId ? { appId: targetAppId } : {}),
       });
 
       const data = await response.json().catch(() => ({}));
@@ -406,7 +406,12 @@ class RuntimeTransport {
   }
 
   private async rpcResponse(path: string, args: RpcArgs): Promise<Response> {
-    const response = await fetch(`${this.url}${path}`, {
+    const baseUrl = typeof window !== "undefined" ? window.location.origin : undefined;
+    const url = new URL(`${this.url}${path}`, baseUrl);
+    if (this.appId) {
+      url.searchParams.set("appId", this.appId);
+    }
+    const response = await fetch(url.toString(), {
       method: "POST",
       headers: this.headers(),
       body: JSON.stringify(args),
@@ -427,11 +432,11 @@ class RuntimeTransport {
   }
 
   private appPath(): string {
-    return `/app/${this.appId}`;
+    return `/_`;
   }
 
   private agentPath(agentId: string): string {
-    return `${this.appPath()}/sub/${agentId}`;
+    return `/_/sub/${agentId}`;
   }
 }
 
