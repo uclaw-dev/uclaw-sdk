@@ -1,5 +1,11 @@
 # @uclaw/sdk
 
+## 0.1.2
+
+### Patch Changes
+
+- 780309a: Update routing path to v2 structure (/\_/?appId=xxx) and make useApp options optional.
+
 ## 0.1.1
 
 ### Patch Changes
