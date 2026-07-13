@@ -3,7 +3,13 @@
 import { useAgent } from "agents/react";
 import { useCallback, useMemo, useState, useRef } from "react";
 
-import type { AgentSummary, AppState, CreateAgentInput, TextGenerationOptions } from "./types";
+import type {
+  AgentSummary,
+  AppState,
+  CreateAgentInput,
+  TextGenerationOptions,
+  AppManifest,
+} from "./types";
 
 import { getDefaultGetToken } from "./utils";
 
@@ -41,6 +47,8 @@ export interface UseAppReturn {
   streamText: (prompt: string, opts?: TextGenerationOptions) => AsyncGenerator<string>;
   /** Connection or setup error, if any. */
   error: Error | null;
+  /** Fetch the application manifest metadata. */
+  getManifest: () => Promise<AppManifest | null>;
 }
 
 export function useApp(options: UseAppOptions = {}): UseAppReturn {
@@ -249,6 +257,11 @@ export function useApp(options: UseAppOptions = {}): UseAppReturn {
     [token, getToken, url, appId],
   );
 
+  const getManifest = useCallback(
+    async () => (await rpcCall("getManifest")) as AppManifest | null,
+    [rpcCall],
+  );
+
   return {
     status,
     error,
@@ -258,5 +271,6 @@ export function useApp(options: UseAppOptions = {}): UseAppReturn {
     renameAgent,
     generateText,
     streamText,
+    getManifest,
   };
 }

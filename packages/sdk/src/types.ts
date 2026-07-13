@@ -33,6 +33,7 @@ export interface CreateAgentInput {
 }
 
 export interface AgentConfig {
+  preset?: string;
   modelProvider?: string;
   modelTier?: "fast" | "balanced" | "capable";
   model?: string;
@@ -40,6 +41,20 @@ export interface AgentConfig {
   maxSteps?: number;
   extensions?: ExtensionDefinition[];
   capabilities?: CapabilityDefinition[];
+}
+
+export interface AppManifest {
+  appId: string;
+  name: string;
+  description?: string;
+  version: string;
+  defaultAgentConfig?: AgentConfig;
+  presets?: Record<string, PresetDefinition>;
+}
+
+export interface PresetDefinition {
+  config: AgentConfig;
+  overrideSchema?: Record<string, any>;
 }
 
 export type Environment = "agent" | "app";
