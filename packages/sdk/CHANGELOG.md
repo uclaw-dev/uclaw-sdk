@@ -1,5 +1,11 @@
 # @uclaw/sdk
 
+## 0.1.3
+
+### Patch Changes
+
+- 4145c25: Add getManifest() method to useApp React hook and define manifest/preset TypeScript interfaces.
+
 ## 0.1.2
 
 ### Patch Changes
