@@ -131,6 +131,34 @@ export class AgentClient {
   async rename(title: string): Promise<void> {
     await this.agents.rename(this.id, title);
   }
+
+  async uploadFile(
+    file: Blob | Uint8Array | ArrayBuffer | FileList,
+    filename?: string,
+  ): Promise<string | string[]> {
+    if (typeof FileList !== "undefined" && file instanceof FileList) {
+      const promises = Array.from(file).map((f) => this.uploadFile(f));
+      return Promise.all(promises) as Promise<string[]>;
+    }
+
+    let blob: Blob;
+    if (file instanceof Blob) {
+      blob = file;
+    } else {
+      blob = new Blob([file as any]);
+    }
+
+    const name = filename || ("name" in file ? (file as any).name : undefined);
+    const formData = new FormData();
+    if (name) {
+      formData.append("file", blob, name);
+    } else {
+      formData.append("file", blob);
+    }
+
+    const { key } = await this.transport.agentUpload(this.id, formData);
+    return key;
+  }
 }
 
 export class Run {
@@ -321,6 +349,31 @@ class RuntimeTransport {
   async agentRpc<T = unknown>(agentId: string, method: string, args: RpcArgs = []): Promise<T> {
     const response = await this.rpcResponse(`${this.agentPath(agentId)}/rpc/${method}`, args);
     return await parseRpcJson<T>(response);
+  }
+
+  async agentUpload(agentId: string, formData: FormData): Promise<{ key: string }> {
+    const baseUrl = typeof window !== "undefined" ? window.location.origin : undefined;
+    const url = new URL(`${this.url}${this.agentPath(agentId)}/upload`, baseUrl);
+    if (this.appId) {
+      url.searchParams.set("appId", this.appId);
+    }
+
+    const headers: Record<string, string> = {
+      ...(this.apiKey ? { Authorization: `Bearer ${this.apiKey}` } : {}),
+    };
+
+    const response = await fetch(url.toString(), {
+      method: "POST",
+      headers,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw await responseError(response);
+    }
+
+    const text = await response.text();
+    return JSON.parse(text) as { key: string };
   }
 
   async appStream(method: string, args: RpcArgs): Promise<Response> {

@@ -51,6 +51,8 @@ export interface UseAgentReturn {
   updateConfig: (config: AgentConfig) => Promise<void>;
   /** Get current agent configuration. */
   currentConfig: () => Promise<AgentConfig>;
+  /** Upload a file directly to the agent's storage. */
+  uploadFile: (file: File | FileList) => Promise<string | string[]>;
 }
 
 export function useAgent(options: UseAgentOptions): UseAgentReturn {
@@ -197,6 +199,51 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
     return (await rpcCall("currentConfig", [])) as AgentConfig;
   }, [rpcCall]);
 
+  const uploadFile = useCallback(
+    async (file: File | FileList) => {
+      const uploadSingle = async (f: File) => {
+        let activeToken = token;
+        if (!activeToken && getToken) {
+          activeToken = await getToken();
+        }
+
+        const baseUrl = typeof window !== "undefined" ? window.location.origin : undefined;
+        const uploadUrl = new URL(`${url}/_/sub/${agentId}/upload`, baseUrl);
+        if (appId) {
+          uploadUrl.searchParams.set("appId", appId);
+        }
+
+        const headers: Record<string, string> = {
+          ...(activeToken ? { Authorization: `Bearer ${activeToken}` } : {}),
+        };
+
+        const formData = new FormData();
+        formData.append("file", f);
+
+        const response = await fetch(uploadUrl.toString(), {
+          method: "POST",
+          headers,
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error(await response.text());
+        }
+
+        const data = (await response.json()) as { key: string };
+        return data.key;
+      };
+
+      if (typeof FileList !== "undefined" && file instanceof FileList) {
+        const promises = Array.from(file).map((f) => uploadSingle(f));
+        return Promise.all(promises);
+      }
+
+      return uploadSingle(file as File);
+    },
+    [token, getToken, url, agentId, appId],
+  );
+
   const chat = useAgentChat({
     agent: runtimeAgent,
     onToolCall,
@@ -209,5 +256,6 @@ export function useAgent(options: UseAgentOptions): UseAgentReturn {
     error,
     updateConfig,
     currentConfig,
+    uploadFile,
   };
 }
