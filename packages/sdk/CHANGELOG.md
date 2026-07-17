@@ -1,5 +1,11 @@
 # @uclaw/sdk
 
+## 0.2.0
+
+### Minor Changes
+
+- 23f461f: Add `uploadFile` method to `AgentClient` and `useAgent` hook to support uploading files directly to R2 storage.
+
 ## 0.1.3
 
 ### Patch Changes
